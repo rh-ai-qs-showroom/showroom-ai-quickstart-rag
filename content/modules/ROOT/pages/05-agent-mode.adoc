@@ -8,11 +8,11 @@ Agent mode enables multi-step, agentic interaction with the LLM. The model can p
 
 . In the sidebar, set *Mode* to *Agent*.
 
-image::agent-mode.png[Agent Mode]
+image::agent-mode.png[Agent Mode,link=self]
 
 . Optionally select a knowledge base to make available to the agent as a retrieval tool. Leave it unset to let the agent work without document retrieval.
 
-image::select-knowledge.png[Select Knowledge Base]
+image::select-knowledge.png[Select Knowledge Base,link=self]
 
 . Submit your query as you would in chat mode.
 

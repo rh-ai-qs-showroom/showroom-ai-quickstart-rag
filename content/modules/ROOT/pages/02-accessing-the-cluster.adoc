@@ -2,30 +2,26 @@
 :navtitle: Accessing the Cluster
 :imagesdir: ../images
 
-All RAG components run inside *your* OpenShift *project* (Kubernetes namespace) for this lab — for example, in the AI Quickstart RAG catalog deployment the namespace is typically `user-<unique-id>-rag`, not a fixed name like `llama-stack-rag`.
+All RAG components run inside *your* OpenShift *project* (Kubernetes namespace) for this lab.
+Your namespace is `{namespace}`.
 This page walks through what you should see for pods, services, and routes — and how to reach the chatbot UI.
-
-[NOTE]
-====
-In every `oc` command below, replace `NAMESPACE` with your project name from the OpenShift console (the project selector in the upper left), or from your lab environment instructions.
-====
 
 == Accessing the Cluster
 From the OpenShift Demo Platform click advanced settings. In the advanced settings is a username and password to login to the cluster.
 
-image::advanced-settings.png[Advanced settings]
+image::advanced-settings.png[Advanced settings,link=self]
 
 Next we need to login to the cluster via the OpenShift UI. In the demo platform click the OpenShift UI button at the top right.
 
-image::openshift-click.png[OpenShift UI]
+image::openshift-click.png[OpenShift UI,link=self]
 
-Login with the username and password from the advanced settings.
+Log in with `{user}` / `{password}`
 
 == Checking Pods
 
 After logging in to the OpenShift UI, we need to check the pods in the namespace. You will see a single project in the UI. In the top left hand corner click on the hamburger menu and select "Workloads/Pods".
 
-image::pods.png[Pods]
+image::pods.png[Pods,link=self]
 
 A healthy cluster will show output similar to the photo above.
 
@@ -56,39 +52,28 @@ The `llamastack` pod will not reach `Running` until all predictor pods are healt
 
 === Using the CLI to check pods
 
-To run CLI commands against the cluster, you first need to log in via the CLI. In the OpenShift UI, click the button in the top right corner labeled "Copy Login Command".
+To run CLI commands against the cluster, click the *Bastion* tab in the right pane to open a terminal. Log in to the cluster:
 
-image::login-command.png[Copy Login Command]
-
-The login command will look something like this:
-[source,bash]
+[source,bash,role="execute",subs=attributes+]
 ----
-oc login --token=sha256~8uvgDNglxuJ3l_NwHMuWYPaJWur_dmtuq-4r5sUalU4 --server=https://api.ai-dev02.kni.syseng.devcluster.openshift.com:6443
+oc login --insecure-skip-tls-verify \
+  -u {user} \
+  -p {password} \
+  {openshift_api_url}
 ----
 
-Paste this command into your terminal and press Enter.
+Once you've logged in, check the pods:
 
-[NOTE]
-====
-If your cluster uses self-signed certificates, you may need to add the `--insecure-skip-tls-verify=true` flag to the login command, like so:
-[source,bash]
+[source,bash,role="execute",subs=attributes+]
 ----
-oc login --token=... --server=... --insecure-skip-tls-verify=true
-----
-====
-
-Once you've logged in, you can run commands to check the pods.
-
-[source,bash]
-----
-oc get pods -l component=predictor -n NAMESPACE
+oc get pods -l component=predictor -n {namespace}
 ----
 
 To check the LlamaStack orchestration pod specifically:
 
-[source,bash]
+[source,bash,role="execute",subs=attributes+]
 ----
-oc get pods -l app.kubernetes.io/name=llamastack -n NAMESPACE
+oc get pods -l app.kubernetes.io/name=llamastack -n {namespace}
 ----
 
 == Checking Services
@@ -97,13 +82,13 @@ Services expose each component internally within the cluster:
 
 In the OpenShift UI, click on the "Networking/Services" menu item in the left hand navigation.
 
-image::services.png[Services]
+image::services.png[Services,link=self]
 
 Or run the following command from the CLI:
 
-[source,bash]
+[source,bash,role="execute",subs=attributes+]
 ----
-oc get svc -n NAMESPACE
+oc get svc -n {namespace}
 ----
 
 .What each service does
@@ -125,26 +110,24 @@ oc get svc -n NAMESPACE
 
 Routes expose the UI and API to the outside world. In the OpenShift UI, click on the "Networking/Routes" menu item in the left hand navigation.
 
-image::routes.png[Routes]
+image::routes.png[Routes,link=self]
 
 Or run the following command from the CLI:
 
-[source,bash]
+[source,bash,role="execute",subs=attributes+]
 ----
-oc get routes -n NAMESPACE
+oc get routes -n {namespace}
 ----
 
-Expected output:
+_Expected output:_
 
-[source]
 ----
 NAME              HOST/PORT                                                    PATH   SERVICES        PORT    TERMINATION   WILDCARD
-llamastack        llamastack-NAMESPACE.apps.cluster-domain                            llamastack      5000    edge          None
-llamastack-ui     llamastack-ui-NAMESPACE.apps.cluster-domain                         llamastack-ui   8501    edge          None
+llamastack        llamastack-{namespace}.{openshift_cluster_ingress_domain}           llamastack      5000    edge          None
+llamastack-ui     llamastack-ui-{namespace}.{openshift_cluster_ingress_domain}        llamastack-ui   8501    edge          None
 ----
 
-Where `NAMESPACE` is the same project name you passed to `oc get routes -n`, and `cluster-domain` stands for your cluster's apps ingress domain (the DNS suffix that appears after `apps.` in a typical route hostname).
-The `HOST/PORT` values are assigned by your cluster — copy the exact URLs from your own `oc get routes` output instead of reconstructing them from a generic example.
+The `HOST/PORT` values are assigned by your cluster — copy the exact URLs from your own `oc get routes` output.
 
 .Route breakdown
 [cols="2,3",options="header"]

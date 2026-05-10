@@ -31,7 +31,7 @@ Before triggering a pipeline run, confirm the following:
 
 * Source documents have been uploaded to the configured S3 bucket
 * The `s3.bucketName`, `s3.endpoint`, `s3.accessKey`, and `s3.secretKey` values are set correctly
-* Your RAG OpenShift project (namespace) is healthy and all pods are running — use the same `NAMESPACE` as in xref:02-accessing-the-cluster.adoc[Accessing the Cluster]
+* Your RAG OpenShift project (namespace `{namespace}`) is healthy and all pods are running — see xref:02-accessing-the-cluster.adoc[Accessing the Cluster]
 
 [NOTE]
 ====
@@ -77,9 +77,9 @@ Each pipeline step appears as a node in the run graph. Click any node to see its
 
 You can also watch the pipeline pod directly from the CLI:
 
-[source,bash]
+[source,bash,role="execute",subs=attributes+]
 ----
-oc get pods -n NAMESPACE | grep pipeline
+oc get pods -n {namespace} | grep pipeline
 ----
 
 A completed run will show the pod in `Completed` status:
@@ -92,9 +92,9 @@ rag-ingest-pipeline-xxxxx         0/1     Completed   0          5m
 
 To stream the logs for a running pipeline pod:
 
-[source,bash]
+[source,bash,subs=attributes+]
 ----
-oc logs -f <pipeline-pod-name> -n NAMESPACE
+oc logs -f <pipeline-pod-name> -n {namespace}
 ----
 
 == Verifying Ingestion
