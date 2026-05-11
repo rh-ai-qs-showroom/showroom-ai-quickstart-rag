@@ -66,7 +66,7 @@ Once you've logged in, check the pods:
 
 [source,bash,role="execute",subs=attributes+]
 ----
-oc get pods -l component=predictor -n {user}-rag
+oc get pods -n {user}-rag
 ----
 
 To check the LlamaStack orchestration pod specifically:
