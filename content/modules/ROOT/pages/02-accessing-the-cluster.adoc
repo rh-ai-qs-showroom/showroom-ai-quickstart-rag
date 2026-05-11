@@ -3,7 +3,7 @@
 :imagesdir: ../images
 
 All RAG components run inside *your* OpenShift *project* (Kubernetes namespace) for this lab.
-Your namespace is `{namespace}`.
+Your namespace is `{user}-rag`.
 This page walks through what you should see for pods, services, and routes — and how to reach the chatbot UI.
 
 == Accessing the Cluster
@@ -66,14 +66,14 @@ Once you've logged in, check the pods:
 
 [source,bash,role="execute",subs=attributes+]
 ----
-oc get pods -l component=predictor -n {namespace}
+oc get pods -n {user}-rag
 ----
 
 To check the LlamaStack orchestration pod specifically:
 
 [source,bash,role="execute",subs=attributes+]
 ----
-oc get pods -l app.kubernetes.io/name=llamastack -n {namespace}
+oc get pods -l app.kubernetes.io/name=llamastack -n {user}-rag
 ----
 
 == Checking Services
@@ -88,7 +88,7 @@ Or run the following command from the CLI:
 
 [source,bash,role="execute",subs=attributes+]
 ----
-oc get svc -n {namespace}
+oc get svc -n {user}-rag
 ----
 
 .What each service does
@@ -116,15 +116,15 @@ Or run the following command from the CLI:
 
 [source,bash,role="execute",subs=attributes+]
 ----
-oc get routes -n {namespace}
+oc get routes -n {user}-rag
 ----
 
 _Expected output:_
 
 ----
 NAME              HOST/PORT                                                    PATH   SERVICES        PORT    TERMINATION   WILDCARD
-llamastack        llamastack-{namespace}.{openshift_cluster_ingress_domain}           llamastack      5000    edge          None
-llamastack-ui     llamastack-ui-{namespace}.{openshift_cluster_ingress_domain}        llamastack-ui   8501    edge          None
+llamastack        llamastack-{user}-rag.{openshift_cluster_ingress_domain}           llamastack      5000    edge          None
+llamastack-ui     llamastack-ui-{user}-rag.{openshift_cluster_ingress_domain}        llamastack-ui   8501    edge          None
 ----
 
 The `HOST/PORT` values are assigned by your cluster — copy the exact URLs from your own `oc get routes` output.
