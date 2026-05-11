@@ -8,8 +8,8 @@ Chat mode lets you interact with the LLM in a simple, single-turn format. You ca
 
 Follow these steps to chat directly with the LLM without retrieval:
 
-. In the sidebar, set *Mode* to *Chat*.
-. Make sure no knowledge base is selected — leave the *Knowledge Base* dropdown unset.
+. In the sidebar, click the *Chat* menu item.
+. Make sure no Document collection is selected — leave the *Select Document Collections for RAG queries* dropdown unset.
 . Type a question in the input box and press *Enter*. For example:
 +
 [source]
@@ -23,7 +23,7 @@ Follow these steps to chat directly with the LLM without retrieval:
 Follow these steps to chat with RAG retrieval:
 
 . In the sidebar, set *Mode* to *Chat*.
-. Select a knowledge base from the *Knowledge Base* dropdown (e.g., one of the pre-loaded FantaCo collections).
+. Select the *hr-vector-db-v1-0* knowledge base from the *Select Document Collections for RAG queries* dropdown.
 +
 image::click-knowledge-base-drop-down.png[Select knowledge base,link=self]
 . Type a question that relates to the documents in that collection and press *Enter*. For example:
@@ -47,7 +47,7 @@ When a knowledge base is selected the system augments every query with relevant 
 . Your question is converted into a vector embedding using the loaded embedding model.
 . The top-k most relevant document chunks are retrieved from PGVector based on semantic similarity.
 . Those chunks are inserted into the LLM prompt as context.
-. The LLM (e.g., `Llama-3.2-3B-Instruct`) generates a response grounded in the retrieved context.
+. The LLM generates a response grounded in the retrieved context.
 . Responses include source references so you can trace the answer back to the originating document.
 
 == When to Use Each Approach
