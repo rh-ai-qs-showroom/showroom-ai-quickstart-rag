@@ -25,7 +25,7 @@ Follow these steps to chat with RAG retrieval:
 . In the sidebar, set *Mode* to *Chat*.
 . Select a knowledge base from the *Knowledge Base* dropdown (e.g., one of the pre-loaded FantaCo collections).
 +
-image::click-knowledge-base-drop-down.png[Select knowledge base]
+image::click-knowledge-base-drop-down.png[Select knowledge base,link=self]
 . Type a question that relates to the documents in that collection and press *Enter*. For example:
 +
 [source]
@@ -38,7 +38,7 @@ image::click-knowledge-base-drop-down.png[Select knowledge base]
 ====
 Since the knowledge base is retrieved, you may need to increase *Max Tokens* in the sidebar. Retrieved chunks consume a significant portion of the token budget, and a low cap can cause the response to be cut short.
 ====
-image::max-token-settings.png[Adjust max tokens]
+image::max-token-settings.png[Adjust max tokens,link=self]
 
 == How RAG Retrieval Works
 

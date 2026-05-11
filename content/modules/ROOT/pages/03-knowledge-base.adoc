@@ -9,10 +9,10 @@ The RAG pipeline uses PostgreSQL with the PGVector extension as its vector store
 . Open the RAG UI and expand the *Knowledge Base* section in the left sidebar.
 . Click *Create New* and enter a unique name for your knowledge base (e.g., `my-kb`).
 + 
-image::create-new-dropdown.png[Create New dropdown]
+image::create-new-dropdown.png[Create New dropdown,link=self]
 . Confirm creation — the new collection is registered in PGVector and is immediately available for selection.
 +
-image::success-message.png[Create New Knowledge Base]
+image::success-message.png[Create New Knowledge Base,link=self]
 
 == Adding Documents via the UI
 

@@ -31,7 +31,7 @@ Output goes to `www/`.
 
 - `site.yml` — Antora playbook: site title, content sources, UI bundle, extensions, output dir
 - `ui-config.yml` — Showroom UI: tab layout, right-pane tabs (terminals, consoles, external URLs), split width
-- `content/antora.yml` — Antora component descriptor (name, title, version)
+- `content/antora.yml` — Antora component descriptor (name, title, version, **runtime attributes**)
 - `content/modules/ROOT/nav.adoc` — Left-side navigation tree
 - `content/modules/ROOT/pages/` — AsciiDoc lab pages (the actual content)
 - `content/supplemental-ui/` — CSS overrides (`css/site-extra.css`), favicon, header template
@@ -46,8 +46,47 @@ Output goes to `www/`.
 - Mermaid diagrams are supported via the `@sntke/antora-mermaid-extension`
 - Runtime variables (credentials, hostnames) are injected as AsciiDoc attributes during deployment
 
+## Code Block Conventions (Showroom Theme)
+
+Executable bash commands **must** use `role="execute"` to get a copy/run button in the Showroom split-pane UI. Commands with dynamic variables also need `subs=attributes+`:
+
+```asciidoc
+[source,bash,role="execute",subs=attributes+]
+----
+oc login --insecure-skip-tls-verify \
+  -u {user} \
+  -p {password} \
+  {openshift_api_url}
+----
+```
+
+- `role="execute"` — adds the copy button in the Showroom theme (required for all user-executable commands)
+- `subs=attributes+` — enables `{variable}` substitution inside the block (required when the block references runtime attributes)
+- Omit `role="execute"` for blocks the user should **not** copy verbatim (e.g., commands with `<placeholder>` the user must fill in, YAML/JSON config snippets, sample output)
+- Sample output blocks use plain `----` delimiters (no `[source,...]` header) or `[source]`, preceded by `_Expected output:_` in italics
+- Never hardcode credentials, namespaces, or cluster URLs — always use `{attribute}` references
+
+## Runtime Attributes
+
+Defined in `content/antora.yml` under `asciidoc.attributes`. At deploy time the Showroom provisioner overrides these with real values. The defaults are placeholders for local preview:
+
+| Attribute | Example placeholder | Purpose |
+|-----------|-------------------|---------|
+| `{user}` | `user1` | OpenShift username |
+| `{password}` | `openshift` | OpenShift password |
+| `{namespace}` | `user1-rag` | Project/namespace |
+| `{openshift_api_url}` | `https://api.cluster-GUID...` | API server URL |
+| `{openshift_console_url}` | `https://console-openshift-console...` | Web console URL |
+| `{openshift_cluster_ingress_domain}` | `apps.cluster-GUID...` | Apps ingress domain |
+
+## Image Conventions
+
+- Use `link=self` on images for lightbox popout: `image::screenshot.png[Alt text,link=self]`
+- Do **not** use `window=blank` on images (use `link=self` instead)
+- No trailing period after credential examples in inline text
+
 ## Key Configuration
 
 - **UI bundle**: PatternFly 6 theme from `rhpds/rhdp_showroom_theme`
 - **Showroom collection version**: Set via `showroom-collection-version` attribute in `site.yml`
-- **Right-pane tabs**: Configured in `ui-config.yml` — currently points to Llamastack Docs
+- **Right-pane tabs**: Configured in `ui-config.yml` — currently Bastion terminal + Llamastack Docs
