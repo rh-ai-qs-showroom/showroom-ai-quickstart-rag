@@ -74,7 +74,7 @@ Defined in `content/antora.yml` under `asciidoc.attributes`. At deploy time the 
 |-----------|-------------------|---------|
 | `{user}` | `user1` | OpenShift username |
 | `{password}` | `openshift` | OpenShift password |
-| `{namespace}` | `user1-rag` | Project/namespace |
+| `{user}-rag` | `user1-rag` | Project/namespace (composed from `{user}`) |
 | `{openshift_api_url}` | `https://api.cluster-GUID...` | API server URL |
 | `{openshift_console_url}` | `https://console-openshift-console...` | Web console URL |
 | `{openshift_cluster_ingress_domain}` | `apps.cluster-GUID...` | Apps ingress domain |
