@@ -3,33 +3,33 @@
 
 This page walks through how to query your knowledge base and validate that retrieval is returning relevant results.
 
-== Try It: Query in Chat Mode
+== Try it: query in chat mode
 
 . In the sidebar, set *Mode* to *Chat*.
 . Select a knowledge base from the *Knowledge Base* dropdown (e.g., one of the pre-loaded FantaCo collections).
 . Type a question whose answer you know appears in the uploaded documents:
 +
-[source]
+[source,text]
 ----
 "What is the vacation policy for full-time employees?"
 ----
 . Press *Enter*.
-. *Expected result* — the response cites specific excerpts from the matching document(s). The answer should closely mirror the source document language. Source references appear alongside the response so you can verify where the information came from.
+. *Expected result*: the response cites specific excerpts from the matching document(s). The answer should closely mirror the source document language. Source references appear alongside the response so you can verify where the information came from.
 
-== Try It: Query in Agent Mode
+== Try it: query in agent mode
 
 . In the sidebar, set *Mode* to *Agent*.
 . Select the same knowledge base.
 . Ask a more complex, multi-part question:
 +
-[source]
+[source,text]
 ----
 "Compare the vacation policy with the sick leave policy and summarize the key differences."
 ----
 . Press *Enter*.
-. *Expected result* — the agent issues multiple retrieval calls (visible in the reasoning trace), retrieves chunks from different documents, and synthesizes a consolidated answer that covers both policies. Each tool call and its result are shown as collapsible sections in the chat window.
+. *Expected result*: the agent issues multiple retrieval calls (visible in the reasoning trace), retrieves chunks from different documents, and synthesizes a consolidated answer that covers both policies. Each tool call and its result are shown as collapsible sections in the chat window.
 
-== How a Query is Processed
+== How a query is processed
 
 When you submit a question, the system handles it differently depending on which mode is active.
 
@@ -41,17 +41,17 @@ Source citations are returned alongside the answer so you can trace it back to t
 
 In *xref:05-agent-mode.adoc[Agent mode]*, the query goes through a planning phase first.
 The LLM breaks your question down into one or more sub-questions and decides which tools to call and in what order.
-For each sub-question it calls the retrieval tool independently — embedding the sub-query, fetching relevant chunks from PGVector, and accumulating the context.
+For each sub-question it calls the retrieval tool independently: embedding the sub-query, fetching relevant chunks from PGVector, and accumulating the context.
 Once all sub-questions have been answered, the LLM synthesizes everything into a single coherent response.
 The full reasoning trace, including each tool call and its result, is displayed in the UI so you can follow the agent's thinking step by step.
 
-== Effective Query Strategies
+== Effective query strategies
 
-* *Be specific* — narrow queries return higher-quality chunks. Instead of "Tell me about HR", ask "What are the steps to request parental leave?"
-* *Use natural language* — the embedding model is optimized for sentence-level semantic similarity.
-* *Iterate* — if the first response lacks detail, rephrase or narrow the question and resubmit.
+* *Be specific*: narrow queries return higher-quality chunks. Instead of "Tell me about HR", ask "What are the steps to request parental leave?"
+* *Use natural language*: the embedding model is optimized for sentence-level semantic similarity.
+* *Iterate*: if the first response lacks detail, rephrase or narrow the question and resubmit.
 
-== Validating Retrieval Quality
+== Validating retrieval quality
 
 To confirm the knowledge base is returning accurate results:
 
@@ -71,10 +71,10 @@ To confirm the knowledge base is returning accurate results:
 |Retrieve more candidate chunks so the model has a wider pool of context.
 
 |Rephrase the query
-|The embedding model matches on semantic similarity — rewording can surface different chunks.
+|The embedding model matches on semantic similarity: rewording can surface different chunks.
 
 |Check document format
-|Scanned PDFs require OCR pre-processing. Convert them to text-layer PDFs before uploading.
+|Scanned PDFs require optical character recognition (OCR) pre-processing. Convert them to text-layer PDFs before uploading.
 
 |Switch embedding model
 |Select a different embedding model from the sidebar dropdown to see if a different model captures the semantics better.

@@ -4,7 +4,7 @@
 
 Chat mode lets you interact with the LLM in a simple, single-turn format. You can use it two ways: with a knowledge base for retrieval-augmented generation (RAG), or without one for a direct conversation with the model.
 
-== Try It: Direct Chat (No Knowledge Base)
+== Try it: direct chat (no knowledge base)
 
 Follow these steps to chat directly with the LLM without retrieval:
 
@@ -12,13 +12,13 @@ Follow these steps to chat directly with the LLM without retrieval:
 . Make sure no Document collection is selected — leave the *Select Document Collections for RAG queries* dropdown unset.
 . Type a question in the input box and press *Enter*. For example:
 +
-[source]
+[source,text]
 ----
 "What is retrieval-augmented generation?"
 ----
 . *Expected result* — the model responds using only its built-in training data. The answer will be general-purpose and will not reference any uploaded documents. No source citations appear because there is no retrieval step.
 
-== Try It: Chat With a Knowledge Base (RAG)
+== Try it: chat with a knowledge base (RAG)
 
 Follow these steps to chat with RAG retrieval:
 
@@ -28,7 +28,7 @@ Follow these steps to chat with RAG retrieval:
 image::click-knowledge-base-drop-down.png[Select knowledge base,link=self]
 . Type a question that relates to the documents in that collection and press *Enter*. For example:
 +
-[source]
+[source,text]
 ----
 "What is the vacation policy for full-time employees?"
 ----
@@ -40,7 +40,7 @@ Since the knowledge base is retrieved, you may need to increase *Max Tokens* in 
 ====
 image::max-token-settings.png[Adjust max tokens,link=self]
 
-== How RAG Retrieval Works
+== How RAG retrieval works
 
 When a knowledge base is selected the system augments every query with relevant document context:
 
@@ -50,7 +50,7 @@ When a knowledge base is selected the system augments every query with relevant 
 . The LLM generates a response grounded in the retrieved context.
 . Responses include source references so you can trace the answer back to the originating document.
 
-== When to Use Each Approach
+== When to use each approach
 
 [cols="1,1",options="header"]
 |===
@@ -66,7 +66,7 @@ When a knowledge base is selected the system augments every query with relevant 
 |Any question where you need grounded, citable answers
 |===
 
-== Tuning the Response
+== Tuning the response
 
 Use the sidebar sampling controls to influence output:
 

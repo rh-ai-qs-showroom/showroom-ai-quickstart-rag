@@ -41,9 +41,9 @@ Output goes to `www/`.
 
 - Lab pages live in `content/modules/ROOT/pages/` as `.adoc` files
 - Navigation is defined in `content/modules/ROOT/nav.adoc` using `xref:` links
-- Pages are numbered with prefix (e.g., `01-overview.adoc`, `02-module-01.adoc`)
+- Pages are numbered with prefix (e.g., `02-accessing-the-cluster.adoc`); `index.adoc` is the unnumbered landing page and implicitly occupies the `01` slot, there is no `01-*.adoc` file
 - The Antora component version is set to `~` (versionless) in `content/antora.yml`
-- Mermaid diagrams are supported via the `@sntke/antora-mermaid-extension`
+- Mermaid extension (`@sntke/antora-mermaid-extension`) is installed in CI but currently commented out in `site.yml` and unused by any page. Enable the `antora.extensions` block there if a page needs it
 - Runtime variables (credentials, hostnames) are injected as AsciiDoc attributes during deployment
 
 ## Code Block Conventions (Showroom Theme)

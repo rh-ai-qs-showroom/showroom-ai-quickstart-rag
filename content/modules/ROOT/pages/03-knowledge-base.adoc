@@ -4,17 +4,17 @@
 
 The RAG pipeline uses PostgreSQL with the PGVector extension as its vector store. New knowledge bases (collections) and document ingestion are managed through the UI or through Kubeflow Pipelines.
 
-== Creating a New Knowledge Base via the UI
+== Creating a new knowledge base via the UI
 
 . Open the RAG UI from the top right corner link and click the *Upload Documents* link in the left sidebar.
 . Click *Create New* and enter a unique name for your knowledge base (e.g., `my-kb`).
 + 
 image::create-new-dropdown.png[Create New dropdown,link=self]
-. Confirm creation — the new collection is registered in PGVector and is immediately available for selection.
+. Confirm creation. The new collection is registered in PGVector and is immediately available for selection.
 +
 image::success-message.png[Create New Knowledge Base,link=self]
 
-== Adding Documents via the UI
+== Adding documents via the UI
 
 . With your collection selected, click *Upload Documents*.
 
@@ -29,12 +29,12 @@ Support for `.docx` and `.xlsx` file types is being added and will be available 
 .. Generates embeddings using the loaded embedding model (you can select a different embedding model from the dropdown)
 .. Stores the embedding vectors in PGVector under your chosen collection
 
-== Extraction and Chunking Mode
+== Extraction and chunking mode
 
 Document extraction and chunking can run in one of two modes:
 
-* *Local* — extraction and chunking happen directly inside the application. This is the default mode and requires no additional infrastructure.
-* *Pipeline* — extraction and chunking are offloaded to a Kubeflow Pipeline running on OpenShift AI. This is better suited for large-scale or batch ingestion workloads. See xref:07-kubeflow-pipeline.adoc[Kubeflow Pipeline] for configuration details.
+* *Local*: extraction and chunking happen directly inside the application. This is the default mode and requires no additional infrastructure.
+* *Pipeline*: extraction and chunking are offloaded to a Kubeflow Pipeline running on OpenShift AI. This is better suited for large-scale or batch ingestion workloads. See xref:07-kubeflow-pipeline.adoc[Kubeflow Pipeline] for configuration details.
 
 [NOTE]
 ====

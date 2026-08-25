@@ -12,16 +12,16 @@ When available, users will be able to choose whether documents are processed dir
 See xref:03-knowledge-base.adoc[Knowledge Base] for details on the two modes.
 ====
 
-== What the Pipeline Does
+== What the pipeline does
 
 The ingestion pipeline is a multi-step workflow.
 Each step is a self-contained container that runs to completion before the next one starts.
 
-. *Fetch* — the pipeline reads source documents from the configured S3 bucket prefix.
-. *Clean* — raw text is extracted from each file. PDFs are parsed page by page; plain text and Markdown files are read directly. Boilerplate headers, footers, and formatting artefacts are stripped. Support for `.docx` and `.xlsx` extraction is being added in an upcoming release.
-. *Chunk* — the cleaned text is split into overlapping chunks of a fixed token size. Overlapping ensures that context is not lost at chunk boundaries.
-. *Embed* — each chunk is passed through the configured embedding model (default: `nomic-ai/nomic-embed-text-v1.5`) to produce a fixed-length vector representation.
-. *Store* — the chunk text and its embedding vector are written as a row in PostgreSQL + PGVector under the target collection name. The collection is created if it does not already exist.
+. *Fetch*: the pipeline reads source documents from the configured S3 bucket prefix.
+. *Clean*: raw text is extracted from each file. PDFs are parsed page by page; plain text and Markdown files are read directly. Boilerplate headers, footers, and formatting artefacts are stripped. Support for `.docx` and `.xlsx` extraction is being added in an upcoming release.
+. *Chunk*: the cleaned text is split into overlapping chunks of a fixed token size. Overlapping ensures that context is not lost at chunk boundaries.
+. *Embed*: each chunk is passed through the configured embedding model (default: `nomic-ai/nomic-embed-text-v1.5`) to produce a fixed-length vector representation.
+. *Store*: the chunk text and its embedding vector are written as a row in PostgreSQL + PGVector under the target collection name. The collection is created if it does not already exist.
 
 Once the pipeline completes, all ingested chunks are immediately available for semantic search in both Chat and Agent modes.
 
@@ -31,7 +31,7 @@ Before triggering a pipeline run, confirm the following:
 
 * Source documents have been uploaded to the configured S3 bucket
 * The `s3.bucketName`, `s3.endpoint`, `s3.accessKey`, and `s3.secretKey` values are set correctly
-* Your RAG OpenShift project (namespace `{user}-rag`) is healthy and all pods are running — see xref:02-accessing-the-cluster.adoc[Accessing the Cluster]
+* Your RAG OpenShift project (namespace `{user}-rag`) is healthy and all pods are running. See xref:02-accessing-the-cluster.adoc[Accessing the Cluster].
 
 [NOTE]
 ====
@@ -39,7 +39,7 @@ The pipeline requires network access to the embedding model service inside the c
 Ensure the `llamastack` pod is in `Running` state before starting a run.
 ====
 
-== Running the Pipeline from OpenShift AI
+== Running the pipeline from OpenShift AI
 
 . Switch to the *OpenShift* tab on the right side of the showroom. This opens the OpenShift AI dashboard for your provisioned cluster.
 . In the left navigation, go to *Data Science Pipelines → Runs*.
@@ -56,7 +56,7 @@ Ensure the `llamastack` pod is in `Running` state before starting a run.
 |`fantaco/hr-docs/`
 
 |`collection_name`
-|The PGVector collection to ingest into — created automatically if it does not exist
+|The PGVector collection to ingest into: created automatically if it does not exist
 |`hr-policies`
 
 |`chunk_size`
@@ -70,7 +70,7 @@ Ensure the `llamastack` pod is in `Running` state before starting a run.
 
 . Click *Submit* to start the run.
 
-== Monitoring a Run
+== Monitoring a run
 
 After submitting, you can track progress in the OpenShift AI dashboard under *Data Science Pipelines → Runs*.
 Each pipeline step appears as a node in the run graph. Click any node to see its logs.
@@ -90,14 +90,14 @@ NAME                              READY   STATUS      RESTARTS   AGE
 rag-ingest-pipeline-xxxxx         0/1     Completed   0          5m
 ----
 
-To stream the logs for a running pipeline pod:
+To stream the logs for a running pipeline pod, replace `<pipeline-pod-name>` with the pod name returned by the previous command, then run:
 
 [source,bash,subs=attributes+]
 ----
 oc logs -f <pipeline-pod-name> -n {user}-rag
 ----
 
-== Verifying Ingestion
+== Verifying ingestion
 
 Once the run completes, confirm that chunks were written to PGVector by querying the knowledge base.
 Switch to the Streamlit UI, select the collection you ingested into, and ask a question whose answer appears in one of the uploaded documents.

@@ -4,7 +4,7 @@
 
 Agent mode enables multi-step, agentic interaction with the LLM. The model can plan, reason, and call tools across multiple turns before returning a final answer. You can use it with a knowledge base for agentic RAG, or without one so the agent relies solely on its training data and any connected tools.
 
-== Starting an Agent Session
+== Starting an agent session
 
 . In the sidebar, set *Mode* to *Agent*.
 
@@ -16,25 +16,25 @@ image::select-knowledge.png[Select Knowledge Base,link=self]
 
 . Submit your query as you would in chat mode.
 
-== Agent Without a Knowledge Base
+== Agent without a knowledge base
 
 When no knowledge base is selected the agent still retains its multi-step reasoning and tool-calling abilities, but it has no document retrieval tool to call. This is useful for:
 
-* Exploring what the model can do on its own — reasoning, planning, and answering from training data.
-* Leveraging tools (e.g., web search) without mixing in local document context.
+* Exploring what the model can do on its own: reasoning, planning, and answering from training data.
+* Using tools (e.g., web search) without mixing in local document context.
 * Creative or analytical tasks that don't depend on proprietary documents, such as code generation or brainstorming.
 
 Because retrieval is not in play the context window is consumed only by tool results and the agent's own reasoning steps, leaving more room for longer conversations.
 
 .Example Questions (No Knowledge Base)
-[source]
+[source,text]
 ----
 "Research the latest OpenShift AI release notes and summarise the key changes."
 "Write a Python script that connects to a PostgreSQL database and lists all tables."
 "Plan a migration strategy from VMs to containers for a typical three-tier app."
 ----
 
-== Agent With a Knowledge Base (Agentic RAG)
+== Agent with a knowledge base (agentic RAG)
 
 When a knowledge base is selected the agent gains access to a retrieval tool backed by PGVector:
 
@@ -44,32 +44,32 @@ When a knowledge base is selected the agent gains access to a retrieval tool bac
 * Additional tools such as *Web Search* extend the agent's capabilities, enabling it to fetch live information from the internet alongside knowledge base retrieval.
 
 .Example Questions for Agentic RAG
-[source]
+[source,text]
 ----
 "Compare our vacation policy with our sick leave policy and summarize the key differences."
 "Walk me through the full procurement approval process from request to payment."
 "What onboarding steps are specific to the IT department versus HR?"
 ----
 
-== Web Search Tool — Try It Out
+== Web search tool: try it out
 
 The web search tool lets the agent fetch up-to-date information from the internet that the LLM does not have in its training data.
 This is a great way to see how tools extend the model's abilities.
 
-=== Scenario: Who Won the Super Bowl in 2025?
+=== Scenario: who won the Super Bowl in 2025?
 
-. *Without web search* — set *Mode* to *Agent*, leave web search disabled, and ask:
+. *Without web search*: set *Mode* to *Agent*, leave web search disabled, and ask:
 +
-[source]
+[source,text]
 ----
 "Who won the Super Bowl in 2025?"
 ----
 +
 The model will either give an incorrect answer or state that it does not have up-to-date information, because the answer falls outside its training data cutoff.
 
-. *With web search* — enable the *Web Search* tool in the sidebar and ask the same question:
+. *With web search*: enable the *Web Search* tool in the sidebar and ask the same question:
 +
-[source]
+[source,text]
 ----
 "Who won the Super Bowl in 2025?"
 ----
@@ -77,7 +77,7 @@ The model will either give an incorrect answer or state that it does not have up
 This time the agent will call the web search tool before answering.
 In the chat window you will see the tool invocation appear as a collapsible step in the reasoning trace:
 +
-[source]
+[source,text]
 ----
 🔧 Tool call: web_search("Super Bowl 2025 winner")
    → Result: "The Philadelphia Eagles won Super Bowl LIX on February 9, 2025 …"
@@ -87,22 +87,22 @@ The agent uses the search result to produce the correct, grounded answer: *The P
 
 This pattern works for any question about recent events, live data, or anything beyond the model's training cutoff.
 
-== How Tools Appear in the Chat Window
+== How tools appear in the chat window
 
-When the agent calls a tool — whether it is knowledge base retrieval or web search — the UI displays each step so you can follow the reasoning:
+When the agent calls a tool, whether it is knowledge base retrieval or web search, the UI displays each step so you can follow the reasoning:
 
-. *Tool call* — the name of the tool and the query the agent sent to it.
-. *Tool result* — the data returned (retrieved document chunks, search results, etc.).
-. *Agent reasoning* — the model's explanation of what it learned and what it plans to do next.
-. *Final answer* — the synthesized response after all tool calls are complete.
+. *Tool call*: the name of the tool and the query the agent sent to it.
+. *Tool result*: the data returned (retrieved document chunks, search results, etc.).
+. *Agent reasoning*: the model's explanation of what it learned and what it plans to do next.
+. *Final answer*: the synthesized response after all tool calls are complete.
 
 Each tool call and its result are shown as collapsible sections in the chat window.
 Expand them to inspect exactly what data the agent used to formulate its answer.
 
-== Context Window
+== Context window
 
 When running in Agent mode with tools and RAG retrieval active at the same time, the LLM prompt fills up quickly.
-Every tool call result — retrieved document chunks, web search responses, and the agent's own reasoning steps — is appended to the context before the model generates its next action.
+Every tool call result (retrieved document chunks, web search responses, and the agent's own reasoning steps) is appended to the context before the model generates its next action.
 If the context window is too small, earlier retrieved content gets truncated and the model loses the information it needs to produce a good answer.
 
 [IMPORTANT]
