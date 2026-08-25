@@ -4,20 +4,16 @@
 
 All RAG components run inside *your* OpenShift *project* (Kubernetes namespace) for this lab.
 Your namespace is `{user}-rag`.
-This page walks through what you should see for pods, services, and routes — and how to reach the chatbot UI.
+This page walks through what you should see for pods, services, and routes, and how to reach the chatbot user interface (UI).
 
-== Accessing the Cluster
-From the OpenShift Demo Platform click advanced settings. In the advanced settings is a username and password to login to the cluster.
-
-image::advanced-settings.png[Advanced settings,link=self]
-
+== Accessing the cluster
 Next we need to login to the cluster via the OpenShift UI. In the demo platform click the OpenShift UI button at the top right.
 
 image::openshift-click.png[OpenShift UI,link=self]
 
 Log in with `{user}` / `{password}`
 
-== Checking Pods
+== Checking pods
 
 After logging in to the OpenShift UI, we need to check the pods in the namespace. You will see a single project in the UI. In the top left hand corner click on the hamburger menu and select "Workloads/Pods".
 
@@ -34,13 +30,13 @@ A healthy cluster will show output similar to the photo above.
 |Streamlit chat interface served to the user
 
 |`llamastack`
-|LlamaStack server — orchestrates the LLM, embeddings, and tools
+|LlamaStack server: orchestrates the LLM, embeddings, and tools
 
 |`postgresql`
-|PostgreSQL + PGVector — stores document embeddings for the vector store
+|PostgreSQL + PGVector: stores document embeddings for the vector store
 
 |`rag-ingest-pipeline`
-|Kubeflow Pipeline job that ingested the initial FantaCo documents — `Completed` is the expected final state
+|Kubeflow Pipeline job that ingested the initial FantaCo documents. `Completed` is the expected final state
 |===
 
 [NOTE]
@@ -76,7 +72,7 @@ To check the LlamaStack orchestration pod specifically:
 oc get pods -l app.kubernetes.io/name=llamastack -n {user}-rag
 ----
 
-== Checking Services
+== Checking services
 
 Services expose each component internally within the cluster:
 
@@ -106,7 +102,7 @@ oc get svc -n {user}-rag
 |Internal PostgreSQL + PGVector endpoint (port 5432)
 |===
 
-== Checking Routes
+== Checking routes
 
 Routes expose the UI and API to the outside world. In the OpenShift UI, click on the "Networking/Routes" menu item in the left hand navigation.
 
@@ -127,7 +123,7 @@ llamastack        llamastack-{user}-rag.{openshift_cluster_ingress_domain}      
 llamastack-ui     llamastack-ui-{user}-rag.{openshift_cluster_ingress_domain}        llamastack-ui   8501    edge          None
 ----
 
-The `HOST/PORT` values are assigned by your cluster — copy the exact URLs from your own `oc get routes` output.
+The `HOST/PORT` values are assigned by your cluster. Copy the exact URLs from your own `oc get routes` output.
 
 .Route breakdown
 [cols="2,3",options="header"]
@@ -138,21 +134,21 @@ The `HOST/PORT` values are assigned by your cluster — copy the exact URLs from
 |*This is the URL you open in your browser.* It serves the Streamlit chat interface over HTTPS.
 
 |`llamastack`
-|The LlamaStack REST API — useful for direct API access, scripting, or connecting external clients.
+|The LlamaStack REST API: useful for direct API access, scripting, or connecting external clients.
 |===
 
 Open the `HOST/PORT` value for `llamastack-ui` in your browser to launch the chat interface.
 
-== What to Expect in the UI
+== What to expect in the UI
 
 When the Streamlit UI loads you will see:
 
 * A chat input box at the bottom of the screen for submitting questions
 * A left sidebar with configuration options:
-** *Knowledge Base* — select which vector store collection to query
-** *Mode* — toggle between *Chat* (simple RAG) and *Agent* (agentic RAG)
-** *Sampling parameters* — adjust temperature, top-p, and max tokens
-** *System prompt* — override the default system prompt
+** *Knowledge Base*: select which vector store collection to query
+** *Mode*: toggle between *Chat* (simple RAG) and *Agent* (agentic RAG)
+** *Sampling parameters*: adjust temperature, top-p, and max tokens
+** *System prompt*: override the default system prompt
 
 The application comes pre-loaded with FantaCo's internal HR, procurement, sales, and IT documents so you can begin asking questions immediately.
 
