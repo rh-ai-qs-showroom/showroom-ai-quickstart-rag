@@ -66,7 +66,7 @@ See xref:05-agent-mode.adoc[Agent Mode] for a walkthrough that demonstrates how 
 
 == Architecture
 
-image::https://raw.githubusercontent.com/rh-ai-quickstart/RAG/main/docs/images/rag-architecture.png[RAG System Architecture,link=self,window=blank]
+image::https://raw.githubusercontent.com/rh-ai-quickstart/RAG/main/docs/images/rag-architecture.png[RAG System Architecture,role=expand]
 
 _This diagram illustrates both the ingestion pipeline for document processing and the RAG pipeline for query handling.
 For more details see the https://github.com/rh-ai-quickstart/RAG/blob/main/docs/rag-reference-architecture.md[RAG reference architecture^]._

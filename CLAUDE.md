@@ -81,13 +81,12 @@ Defined in `content/antora.yml` under `asciidoc.attributes`. At deploy time the 
 
 ## Image Conventions
 
-- Use `link=self,window=blank` together on every `image::` macro: `image::screenshot.png[Alt text,link=self,window=blank]`.
-- The actual pop-out lightbox (scaled-up image, dark overlay, click-outside/Escape/× to close) is custom-built in this repo, not provided by the UI bundle: `content/supplemental-ui/js/lightbox.js` intercepts clicks on `.imageblock a.image` and `content/supplemental-ui/css/site-extra.css` styles the overlay. It's wired in via `content/supplemental-ui/partials/header-scripts.hbs`, which overrides the (empty) same-named partial in the fetched UI bundle — that's how any file under `content/supplemental-ui/` reaches the rendered site.
-- `window=blank` on the macro is a no-JS fallback only (opens the raw image in a new tab if the lightbox script fails to load); the lightbox JS's `preventDefault()` takes priority when it loads successfully.
+- Use `role=expand` on every `image::` macro for a pop-out lightbox: `image::screenshot.png[Alt text,role=expand]`. This is a native feature of the `rhdp_showroom_theme` UI bundle (`v2.0.0`+) — no `link=`/`window=` attributes or custom JS needed.
 - No trailing period after credential examples in inline text
 
 ## Key Configuration
 
-- **UI bundle**: PatternFly 6 theme from `rhpds/rhdp_showroom_theme`
+- **UI bundle**: `rhdp_showroom_theme`, pinned to tag `v2.0.3` in `site.yml`. Bundle versions matter: tags before `v2.0.0` (e.g. the old `patternfly-6` tag) ship an uninitialized vendor `clipboard.js` with no copy/run-in-terminal button wiring and no lightbox at all — `role="execute"` and `role=expand` silently do nothing on those. Check a bundle's `js/vendor/clipboard.js` and `js/site.js` for `listingblock`/`lightbox` references before pinning to a new tag.
+- **`ui.supplemental_files` gotcha**: must be a bare string (`supplemental_files: ./content/supplemental-ui`) to recursively overlay the whole directory. The list form (`- path: ./content/supplemental-ui`) is for individual file entries and silently does nothing without an accompanying `contents:` key — verify with `antora --fetch site.yml` locally and check `www/_/css/site-extra.css` actually exists after a bundle/config change.
 - **Showroom collection version**: Set via `showroom-collection-version` attribute in `site.yml`
 - **Right-pane tabs**: Configured in `ui-config.yml` — currently Bastion terminal + Llamastack Docs

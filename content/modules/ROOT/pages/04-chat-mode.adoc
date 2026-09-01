@@ -25,7 +25,7 @@ Follow these steps to chat with RAG retrieval:
 . In the sidebar, set *Mode* to *Chat*.
 . Select the *hr-vector-db-v1-0* knowledge base from the *Select Document Collections for RAG queries* dropdown.
 +
-image::click-knowledge-base-drop-down.png[Select knowledge base,link=self,window=blank]
+image::click-knowledge-base-drop-down.png[Select knowledge base,role=expand]
 . Type a question that relates to the documents in that collection and press *Enter*. For example:
 +
 [source,text]
@@ -38,7 +38,7 @@ image::click-knowledge-base-drop-down.png[Select knowledge base,link=self,window
 ====
 Since the knowledge base is retrieved, you may need to increase *Max Tokens* in the sidebar. Retrieved chunks consume a significant portion of the token budget, and a low cap can cause the response to be cut short.
 ====
-image::max-token-settings.png[Adjust max tokens,link=self,window=blank]
+image::max-token-settings.png[Adjust max tokens,role=expand]
 
 == How RAG retrieval works
 

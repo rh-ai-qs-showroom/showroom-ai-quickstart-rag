@@ -9,7 +9,7 @@ This page walks through what you should see for pods, services, and routes, and 
 == Accessing the cluster
 Next we need to login to the cluster via the OpenShift UI. In the demo platform click the OpenShift UI button at the top right.
 
-image::openshift-click.png[OpenShift UI,link=self,window=blank]
+image::openshift-click.png[OpenShift UI,role=expand]
 
 Log in with:
 
@@ -31,7 +31,7 @@ Password::
 
 After logging in to the OpenShift UI, we need to check the pods in the namespace. You will see a single project in the UI. In the top left hand corner click on the hamburger menu and select "Workloads/Pods".
 
-image::pods.png[Pods,link=self,window=blank]
+image::pods.png[Pods,role=expand]
 
 A healthy cluster will show output similar to the photo above.
 
@@ -95,7 +95,7 @@ Services expose each component internally within the cluster:
 
 In the OpenShift UI, click on the "Networking/Services" menu item in the left hand navigation.
 
-image::services.png[Services,link=self,window=blank]
+image::services.png[Services,role=expand]
 
 Or run the following command from the CLI:
 
@@ -131,7 +131,7 @@ The Streamlit chat UI and the ingestion pipeline's REST API are also backed by s
 
 Routes expose the UI and API to the outside world. In the OpenShift UI, click on the "Networking/Routes" menu item in the left hand navigation.
 
-image::routes.png[Routes,link=self,window=blank]
+image::routes.png[Routes,role=expand]
 
 Or run the following command from the CLI:
 
