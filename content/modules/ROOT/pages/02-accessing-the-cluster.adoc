@@ -11,7 +11,21 @@ Next we need to login to the cluster via the OpenShift UI. In the demo platform 
 
 image::openshift-click.png[OpenShift UI,link=self,window=blank]
 
-Log in with `{user}` / `{password}`
+Log in with:
+
+Username::
++
+[source,text,role="execute",subs=attributes+]
+----
+{user}
+----
+
+Password::
++
+[source,text,role="execute",subs=attributes+]
+----
+{password}
+----
 
 == Checking pods
 
