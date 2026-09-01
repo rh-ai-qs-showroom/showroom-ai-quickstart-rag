@@ -1,7 +1,13 @@
-/* left align items inside imageblock */
+/* center screenshots on the page */
 .doc .imageblock {
-    align-items: flex-start;
+    align-items: center;
   }
+
+/* upscale small screenshots in the lightbox so they read as more than a thumbnail */
+.lightbox-overlay img {
+    width: 95vw !important;
+    height: auto !important;
+}
 
 /* add a shadow to the image container */
 .doc .bordershadow .content{
