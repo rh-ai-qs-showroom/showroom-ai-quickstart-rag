@@ -224,9 +224,10 @@ When the Streamlit UI loads you will see:
 
 * A chat input box at the bottom of the screen for submitting questions
 * A left sidebar with configuration options:
-** *Knowledge Base*: select which vector store collection to query
-** *Mode*: toggle between *Chat* (simple RAG) and *Agent* (agentic RAG)
-** *Sampling parameters*: adjust temperature, top-p, and max tokens
+** *Model*: the LLM currently serving responses
+** *Processing mode*: toggle between *Direct* (simple RAG) and *Agent-based* (agentic RAG with tool calling)
+** *Select Document Collections for RAG queries*: appears once at least one knowledge base exists; choose which vector store collection to query
+** *Sampling parameters*: adjust temperature, top K, max tokens, and (in Agent-based mode) max inference iterations
 ** *System prompt*: override the default system prompt
 
 The application comes pre-loaded with FantaCo's internal HR, Legal, Procurement, Sales, and TechSupport documents so you can begin asking questions immediately.

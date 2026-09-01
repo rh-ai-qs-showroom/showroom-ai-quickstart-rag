@@ -22,8 +22,8 @@ Follow these steps to chat directly with the LLM without retrieval:
 
 Follow these steps to chat with RAG retrieval:
 
-. In the sidebar, set *Mode* to *Chat*.
-. Select the *hr-vector-db-v1-0* knowledge base from the *Select Document Collections for RAG queries* dropdown.
+. In the sidebar, ensure *Processing mode* is set to *Direct*.
+. Select the *hr-vector-db-v1-0* knowledge base from the *Select Document Collections for RAG queries* dropdown. This dropdown only appears once at least one knowledge base exists; see xref:03-knowledge-base.adoc[Knowledge Base] if it's not visible yet.
 +
 image::click-knowledge-base-drop-down.png[Select knowledge base,role=expand]
 . Type a question that relates to the documents in that collection and press *Enter*. For example:
@@ -77,10 +77,7 @@ Use the sidebar sampling controls to influence output:
 |Temperature
 |Higher values (e.g., 0.9) increase creativity; lower values (e.g., 0.1) make responses more deterministic.
 
-|Top-p
-|Controls nucleus sampling: lower values restrict the token pool.
-
-|Top-k
+|Top K
 |Restricts sampling to the _k_ most likely tokens: lower values reduce randomness.
 
 |Max Tokens

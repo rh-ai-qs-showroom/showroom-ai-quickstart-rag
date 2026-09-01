@@ -6,7 +6,7 @@ Agent mode enables multi-step, agentic interaction with the LLM. The model can p
 
 == Starting an agent session
 
-. In the sidebar, set *Mode* to *Agent*.
+. In the sidebar, set *Processing mode* to *Agent-based*.
 
 image::agent-mode.png[Agent Mode,role=expand]
 
@@ -58,7 +58,7 @@ This is a great way to see how tools extend the model's abilities.
 
 === Scenario: who won the Super Bowl in 2025?
 
-. *Without web search*: set *Mode* to *Agent*, leave web search disabled, and ask:
+. *Without web search*: set *Processing mode* to *Agent-based*, leave web search disabled, and ask:
 +
 [source,text]
 ----
@@ -107,13 +107,14 @@ If the context window is too small, earlier retrieved content gets truncated and
 
 [IMPORTANT]
 ====
-Set *Max Tokens* to its maximum value in the sidebar when using Agent mode with tools and RAG together.
+Set *Max Tokens* to its maximum value in the sidebar when using Agent-based mode with tools and RAG together.
 A full context window gives the model the best chance of retaining all retrieved chunks and tool results across multiple reasoning steps.
+If the agent is still cutting reasoning short, also check *Max Inference Iterations*: it caps how many tool-calling/reasoning loops the agent can run before it must return a final answer.
 ====
 
 [TIP]
 ====
-Agent mode is best suited for multi-part questions that require synthesizing information from several documents or knowledge base sections. If your question is straightforward and single-turn, Chat mode will be faster and simpler.
+Agent-based mode is best suited for multi-part questions that require synthesizing information from several documents or knowledge base sections. If your question is straightforward and single-turn, Direct mode will be faster and simpler.
 ====
 
 [.next-nav]

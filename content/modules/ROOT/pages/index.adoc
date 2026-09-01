@@ -20,10 +20,10 @@ Retrieval-Augmented Generation (RAG) enhances Large Language Models (LLMs) by re
 The application comes pre-loaded with FantaCo's internal documents so you can begin exploring immediately.
 Use the sidebar on the left to configure the experience:
 
-=== Switch between modes
+=== Switch between processing modes
 
-* *Chat*: simple, single-turn RAG. Select a knowledge base, ask a question, and get a grounded answer with source citations. See xref:04-chat-mode.adoc[Chat Mode].
-* *Agent*: multi-step, agentic RAG. The LLM plans, reasons, and calls tools (e.g., knowledge base retrieval, web search) across multiple turns before returning a final answer. See xref:05-agent-mode.adoc[Agent Mode].
+* *Direct*: simple, single-turn RAG. Passes vector store search results as context straight to the LLM. Select a knowledge base, ask a question, and get a grounded answer with source citations. See xref:04-chat-mode.adoc[Chat Mode].
+* *Agent-based*: multi-step, agentic RAG using the Responses API with tool calling. The LLM plans, reasons, and calls tools (e.g., knowledge base retrieval, web search) across multiple turns before returning a final answer. See xref:05-agent-mode.adoc[Agent Mode].
 
 === Tune model parameters
 
@@ -36,14 +36,14 @@ The sidebar exposes several sampling controls that influence how the LLM generat
 |*Temperature*
 |Controls randomness. Lower values (e.g., 0.1) produce more deterministic, focused answers. Higher values (e.g., 0.9) increase creativity and variation.
 
-|*Top-p*
-|Nucleus sampling: limits the token pool to the smallest set whose cumulative probability exceeds this threshold. Lower values make output more conservative.
-
-|*Top-k*
+|*Top K*
 |Restricts the model to sampling from only the _k_ most likely next tokens. Lower values reduce randomness; higher values allow more diversity.
 
 |*Max Tokens*
 |Caps the length of the generated response. When RAG retrieval is active, set this high because retrieved chunks consume a significant portion of the token budget.
+
+|*Max Inference Iterations*
+|Agent-based mode only. Caps how many tool-calling/reasoning loops the agent can run before it must return a final answer.
 
 |*System Prompt*
 |Override the assistant's persona or add constraints (e.g., "Answer only in bullet points." or "Respond in Spanish.").
@@ -52,12 +52,11 @@ The sidebar exposes several sampling controls that influence how the LLM generat
 === Work with knowledge bases
 
 * Browse, create, and select knowledge base collections backed by PostgreSQL + PGVector.
-* Upload your own documents (PDF, plain text, Markdown) to create a custom knowledge base. See xref:03-knowledge-base.adoc[Bring Your Own Documents].
-* Choose which embedding model to use from the sidebar dropdown.
+* Upload your own documents to create a custom knowledge base: plain text, PDF, and Markdown are supported directly; `.docx` and `.xlsx` are supported via the Docling extraction method. See xref:03-knowledge-base.adoc[Bring Your Own Documents].
 
 === Use agent tools
 
-When running in Agent mode, the LLM can call tools to extend its capabilities beyond its training data:
+When running in Agent-based mode, the LLM can call tools to extend its capabilities beyond its training data:
 
 * *Knowledge Base Retrieval*: semantic search over your uploaded documents.
 * *Web Search*: query the internet for up-to-date information the model was not trained on.
