@@ -1,106 +1,100 @@
 = Kubeflow Ingestion Pipeline
 :navtitle: Kubeflow Pipeline
 
-The RAG quickstart ships with a Kubeflow Pipeline that handles bulk document ingestion.
-When documents are uploaded through the Streamlit UI, the same pipeline is triggered automatically in the background.
-For larger datasets, or when documents live in an S3 bucket, you can run the pipeline directly from *OpenShift AI Data Science Pipelines*.
-
-[NOTE]
-====
-A toggle to switch between local extraction/chunking and pipeline-based extraction/chunking is being added.
-When available, users will be able to choose whether documents are processed directly inside the application or offloaded to this Kubeflow Pipeline.
-See xref:03-knowledge-base.adoc[Knowledge Base] for details on the two modes.
-====
+The RAG quickstart ingests documents through an `ingestion-pipeline` REST API service, backed by a Kubeflow Data Science Pipelines Application (DSPA) that does the actual fetch/chunk/embed/store work.
+Every one of FantaCo's five pre-loaded document categories, HR, Legal, Procurement, Sales, and TechSupport, was ingested this way automatically when your environment was provisioned.
+The same API is what the *Upload Documents* button in the chat UI calls behind the scenes; see xref:03-knowledge-base.adoc[Knowledge Base] for that flow.
 
 == What the pipeline does
 
-The ingestion pipeline is a multi-step workflow.
-Each step is a self-contained container that runs to completion before the next one starts.
+Ingesting a document set is a multi-step workflow:
 
-. *Fetch*: the pipeline reads source documents from the configured S3 bucket prefix.
-. *Clean*: raw text is extracted from each file. PDFs are parsed page by page; plain text and Markdown files are read directly. Boilerplate headers, footers, and formatting artefacts are stripped. Support for `.docx` and `.xlsx` extraction is being added in an upcoming release.
-. *Chunk*: the cleaned text is split into overlapping chunks of a fixed token size. Overlapping ensures that context is not lost at chunk boundaries.
-. *Embed*: each chunk is passed through the configured embedding model (default: `nomic-ai/nomic-embed-text-v1.5`) to produce a fixed-length vector representation.
-. *Store*: the chunk text and its embedding vector are written as a row in PostgreSQL + PGVector under the target collection name. The collection is created if it does not already exist.
+. *Fetch*: source documents are pulled from the configured source, either a GitHub repository (used for the built-in FantaCo categories) or an S3-compatible bucket in MinIO (used for documents you upload yourself).
+. *Clean*: raw text is extracted from each file. PDFs are parsed page by page; plain text and Markdown files are read directly.
+. *Chunk*: the cleaned text is split into overlapping chunks so that context is not lost at chunk boundaries.
+. *Embed*: each chunk is passed through the configured embedding model (default: `all-MiniLM-L6-v2`) to produce a fixed-length vector representation.
+. *Store*: the chunk text and its embedding vector are written into PostgreSQL + pgvector under the target vector store name. The collection is created if it does not already exist.
 
-Once the pipeline completes, all ingested chunks are immediately available for semantic search in both Chat and Agent modes.
+Once a pipeline completes, its chunks are immediately available for semantic search in both Chat and Agent modes.
 
-== Prerequisites
+== How the built-in categories were ingested
 
-Before triggering a pipeline run, confirm the following:
+At deploy time, one Kubernetes Job per category POSTs a pipeline definition to the ingestion-pipeline API, pointing it at that category's folder in the `rh-ai-quickstart/RAG` GitHub repository:
 
-* Source documents have been uploaded to the configured S3 bucket
-* The `s3.bucketName`, `s3.endpoint`, `s3.accessKey`, and `s3.secretKey` values are set correctly
-* Your RAG OpenShift project (namespace `{user}-rag`) is healthy and all pods are running. See xref:02-accessing-the-cluster.adoc[Accessing the Cluster].
-
-[NOTE]
-====
-The pipeline requires network access to the embedding model service inside the cluster.
-Ensure the `llamastack` pod is in `Running` state before starting a run.
-====
-
-== Running the pipeline from OpenShift AI
-
-. Switch to the *OpenShift* tab on the right side of the showroom. This opens the OpenShift AI dashboard for your provisioned cluster.
-. In the left navigation, go to *Data Science Pipelines → Runs*.
-. Select the *RAG Ingestion Pipeline* from the pipeline list.
-. Click *Create Run*.
-. Fill in the run parameters:
-+
-[cols="1,2,2",options="header"]
+[cols="1,2",options="header"]
 |===
-|Parameter |Description |Example
+|Job |Vector store created
 
-|`s3_prefix`
-|The S3 key prefix (folder path) containing your documents
-|`fantaco/hr-docs/`
+|`add-hr-pipeline-pipeline`
+|`hr-vector-db-v1-0`
 
-|`collection_name`
-|The PGVector collection to ingest into: created automatically if it does not exist
-|`hr-policies`
+|`add-legal-pipeline-pipeline`
+|`legal-vector-db-v1-0`
 
-|`chunk_size`
-|Token size for each chunk (default: 512)
-|`512`
+|`add-procurement-pipeline-pipeline`
+|`procurement-vector-db-v1-0`
 
-|`chunk_overlap`
-|Token overlap between adjacent chunks (default: 50)
-|`50`
+|`add-sales-pipeline-pipeline`
+|`sales-vector-db-v1-0`
+
+|`add-techsupport-pipeline-pipeline`
+|`techsupport-vector-db-v1-0`
 |===
 
-. Click *Submit* to start the run.
-
-== Monitoring a run
-
-After submitting, you can track progress in the OpenShift AI dashboard under *Data Science Pipelines → Runs*.
-Each pipeline step appears as a node in the run graph. Click any node to see its logs.
-
-You can also watch the pipeline pod directly from the CLI:
+Check their status from the Bastion terminal:
 
 [source,bash,role="execute",subs=attributes+]
 ----
-oc get pods -n {user}-rag | grep pipeline
+oc get jobs -l app.kubernetes.io/name=ingestion-pipeline -n {user}-rag
 ----
 
-A completed run will show the pod in `Completed` status:
+Each `Job` stays `Running` until its `wait-for-pipeline` init container confirms the ingestion-pipeline API is reachable, then it posts the request and completes. The actual chunk/embed/store work happens asynchronously afterward, executed by the Data Science Pipelines Application control plane:
 
-[source]
+[source,bash,role="execute",subs=attributes+]
 ----
-NAME                              READY   STATUS      RESTARTS   AGE
-rag-ingest-pipeline-xxxxx         0/1     Completed   0          5m
+oc get pods -l component=data-science-pipelines -n {user}-rag
 ----
 
-To stream the logs for a running pipeline pod, replace `<pipeline-pod-name>` with the pod name returned by the previous command, then run:
+== Adding your own document set
+
+To ingest a new document set beyond the five pre-loaded categories, call the ingestion-pipeline API's `/add` endpoint directly with a source definition. First, find the service (its name is prefixed with your environment's release name):
+
+[source,bash,role="execute",subs=attributes+]
+----
+oc get svc -l app.kubernetes.io/name=ingestion-pipeline -n {user}-rag
+----
+
+Then, from the Bastion terminal, POST a pipeline definition. This example ingests documents from the `llama` bucket in MinIO (the same bucket and credentials the *Upload Documents* UI flow uses), replacing `<ingestion-pipeline-service>` with the name from the previous command:
 
 [source,bash,subs=attributes+]
 ----
-oc logs -f <pipeline-pod-name> -n {user}-rag
+curl -sX POST http://<ingestion-pipeline-service>/add \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "name": "my-custom-vector-db",
+    "vector_store_name": "my-custom-vector-db-v1-0",
+    "version": "1.0",
+    "embedding_model": "all-MiniLM-L6-v2",
+    "source": "S3",
+    "S3": {
+      "access_key_id": "minio_rag_user",
+      "secret_access_key": "minio_rag_password",
+      "bucket_name": "llama",
+      "endpoint_url": "http://minio.{user}-rag.svc.cluster.local:9000",
+      "region": "us-east-1"
+    }
+  }'
 ----
+
+[NOTE]
+====
+`<ingestion-pipeline-service>` is a literal placeholder here, replace it with the real service name before running the command; this block intentionally omits the copy-button role for that reason.
+====
 
 == Verifying ingestion
 
-Once the run completes, confirm that chunks were written to PGVector by querying the knowledge base.
-Switch to the Streamlit UI, select the collection you ingested into, and ask a question whose answer appears in one of the uploaded documents.
+Once a pipeline run completes, confirm that chunks were written to pgvector by querying the knowledge base.
+Switch to the Streamlit UI, select the vector store you ingested into, and ask a question whose answer appears in one of the source documents.
 
 For a deeper check of retrieval quality, see xref:06-querying-knowledge-base.adoc[Querying the Knowledge Base].
 
@@ -110,17 +104,17 @@ For a deeper check of retrieval quality, see xref:06-querying-knowledge-base.ado
 |===
 |Symptom |Action
 
-|Pipeline pod stays in `Pending`
-|Check that the `llamastack` pod is `Running`. The pipeline depends on the embedding service being available.
+|`add-<category>-pipeline-pipeline` Job stuck `Running` with `0/1` completions
+|Check the ingestion-pipeline pod is `Running` and its service exists: `oc get pods,svc -l app.kubernetes.io/name=ingestion-pipeline -n {user}-rag`. The Job's `wait-for-pipeline` init container polls that service and cannot proceed without it.
 
-|`ConnectionRefused` error in pod logs
-|Verify the S3 endpoint and credentials are correctly configured.
+|`ConnectionRefused` calling `/add`
+|Verify the ingestion-pipeline service name and that you're running the `curl` from inside the cluster (the Bastion terminal), not from your local machine.
 
 |Run completes but no results appear in chat
-|Confirm the `collection_name` parameter matches exactly what is selected in the UI Knowledge Base dropdown.
+|Confirm the `vector_store_name` you ingested into matches exactly what is selected in the UI Knowledge Base dropdown.
 
 |Poor retrieval quality after ingestion
-|Try reducing `chunk_size` (e.g., 256) and re-running the pipeline so chunks are more granular.
+|Try a smaller chunk size and re-running the pipeline so chunks are more granular.
 
 |PDF pages appear garbled or empty
 |Scanned PDFs require OCR pre-processing before ingestion. Convert them to text-layer PDFs first.

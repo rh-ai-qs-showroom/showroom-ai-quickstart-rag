@@ -9,7 +9,7 @@ This page walks through what you should see for pods, services, and routes, and 
 == Accessing the cluster
 Next we need to login to the cluster via the OpenShift UI. In the demo platform click the OpenShift UI button at the top right.
 
-image::openshift-click.png[OpenShift UI,link=self]
+image::openshift-click.png[OpenShift UI,link=self,window=blank]
 
 Log in with `{user}` / `{password}`
 
@@ -17,33 +17,36 @@ Log in with `{user}` / `{password}`
 
 After logging in to the OpenShift UI, we need to check the pods in the namespace. You will see a single project in the UI. In the top left hand corner click on the hamburger menu and select "Workloads/Pods".
 
-image::pods.png[Pods,link=self]
+image::pods.png[Pods,link=self,window=blank]
 
 A healthy cluster will show output similar to the photo above.
 
 .Key pods to verify
 [cols="2,3",options="header"]
 |===
-|Pod name contains |Purpose
+|Pod label (`app.kubernetes.io/name=`) |Purpose
 
-|`llamastack-ui`
+|`rag`
 |Streamlit chat interface served to the user
 
 |`llamastack`
 |LlamaStack server: orchestrates the LLM, embeddings, and tools
 
-|`postgresql`
-|PostgreSQL + PGVector: stores document embeddings for the vector store
+|`pgvector`
+|PostgreSQL + pgvector extension: stores document embeddings for the vector store
 
-|`rag-ingest-pipeline`
-|Kubeflow Pipeline job that ingested the initial FantaCo documents. `Completed` is the expected final state
+|`ingestion-pipeline`
+|REST API that receives document-ingestion requests and hands them off to the Data Science Pipelines Application
+
+|`minio`
+|S3-compatible object storage backing the ingestion pipeline
 |===
 
 [NOTE]
 ====
-The predictor pods show `2/2` ready in the default configuration.
-If the system was configured with `RAW_DEPLOYMENT=false`, expect `3/3`.
-The `llamastack` pod will not reach `Running` until all predictor pods are healthy.
+There is no local model-serving pod in this namespace. The LLM runs on an external OpenShift AI Model-as-a-Service (MaaS) endpoint, so the `llamastack` pod only needs to reach `Running` on its own.
+
+You will also see several `Running` pods labeled `component=data-science-pipelines` (the Kubeflow pipeline control plane) and, briefly at first boot, one `add-<department>-pipeline-pipeline` Job per pre-loaded document category. See xref:07-kubeflow-pipeline.adoc[Kubeflow Pipeline] for what these do.
 ====
 
 === Using the CLI to check pods
@@ -65,7 +68,7 @@ Once you've logged in, check the pods:
 oc get pods -n {user}-rag
 ----
 
-To check the LlamaStack orchestration pod specifically:
+To check any of the key pods by their label instead of guessing at a name (labels are stable even when the underlying deployment name changes):
 
 [source,bash,role="execute",subs=attributes+]
 ----
@@ -78,7 +81,7 @@ Services expose each component internally within the cluster:
 
 In the OpenShift UI, click on the "Networking/Services" menu item in the left hand navigation.
 
-image::services.png[Services,link=self]
+image::services.png[Services,link=self,window=blank]
 
 Or run the following command from the CLI:
 
@@ -93,20 +96,28 @@ oc get svc -n {user}-rag
 |Service |Purpose
 
 |`llamastack`
-|Internal REST API for the LlamaStack server (port 5000)
+|Internal REST API for the LlamaStack server (port 8321)
 
-|`llamastack-ui`
-|Internal HTTP endpoint for the Streamlit UI (port 8501)
+|`pgvector`
+|Internal PostgreSQL + pgvector endpoint (port 5432)
 
-|`postgresql`
-|Internal PostgreSQL + PGVector endpoint (port 5432)
+|`minio`
+|Internal S3-compatible object storage used by the ingestion pipeline
+
+|`ds-pipeline-dspa` and related `ds-pipeline-*`/`mariadb-dspa` services
+|Kubeflow Data Science Pipelines Application control plane that executes ingestion pipeline runs
 |===
+
+[NOTE]
+====
+The Streamlit chat UI and the ingestion pipeline's REST API are also backed by services in this namespace, but their names are prefixed with your environment's release name rather than a fixed string. Find them with `oc get svc -l app.kubernetes.io/name=rag` and `oc get svc -l app.kubernetes.io/name=ingestion-pipeline`.
+====
 
 == Checking routes
 
 Routes expose the UI and API to the outside world. In the OpenShift UI, click on the "Networking/Routes" menu item in the left hand navigation.
 
-image::routes.png[Routes,link=self]
+image::routes.png[Routes,link=self,window=blank]
 
 Or run the following command from the CLI:
 
@@ -115,29 +126,38 @@ Or run the following command from the CLI:
 oc get routes -n {user}-rag
 ----
 
+The chat UI's route name is prefixed with your environment's release name, so filter by label to find it reliably instead of guessing the name:
+
+[source,bash,role="execute",subs=attributes+]
+----
+oc get routes -l app.kubernetes.io/name=rag -n {user}-rag
+----
+
 _Expected output:_
 
 ----
-NAME              HOST/PORT                                                    PATH   SERVICES        PORT    TERMINATION   WILDCARD
-llamastack        llamastack-{user}-rag.{openshift_cluster_ingress_domain}           llamastack      5000    edge          None
-llamastack-ui     llamastack-ui-{user}-rag.{openshift_cluster_ingress_domain}        llamastack-ui   8501    edge          None
+NAME            HOST/PORT                                                        PATH   SERVICES        PORT   TERMINATION     WILDCARD
+<release>-rag   <release>-rag-{user}-rag.{openshift_cluster_ingress_domain}             <release>-rag   8501   edge/Redirect   None
 ----
 
-The `HOST/PORT` values are assigned by your cluster. Copy the exact URLs from your own `oc get routes` output.
+The `HOST/PORT` value is assigned by your cluster. Copy the exact URL from your own `oc get routes` output.
 
 .Route breakdown
 [cols="2,3",options="header"]
 |===
 |Route |Purpose
 
-|`llamastack-ui`
+|`<release>-rag`
 |*This is the URL you open in your browser.* It serves the Streamlit chat interface over HTTPS.
 
-|`llamastack`
-|The LlamaStack REST API: useful for direct API access, scripting, or connecting external clients.
+|`ds-pipeline-dspa` / `ds-pipeline-md-dspa`
+|Internal API access to the Kubeflow Data Science Pipelines Application; not needed for the chat workflow.
+
+|`minio-webui` / `minio-api`
+|Console and API access to the object storage backing the ingestion pipeline; useful for inspecting uploaded documents.
 |===
 
-Open the `HOST/PORT` value for `llamastack-ui` in your browser to launch the chat interface.
+Open the `HOST/PORT` value for the `<release>-rag` route in your browser to launch the chat interface. The LlamaStack API itself has no route: it is only reachable from inside the cluster.
 
 == What to expect in the UI
 
@@ -150,7 +170,7 @@ When the Streamlit UI loads you will see:
 ** *Sampling parameters*: adjust temperature, top-p, and max tokens
 ** *System prompt*: override the default system prompt
 
-The application comes pre-loaded with FantaCo's internal HR, procurement, sales, and IT documents so you can begin asking questions immediately.
+The application comes pre-loaded with FantaCo's internal HR, Legal, Procurement, Sales, and TechSupport documents so you can begin asking questions immediately.
 
 [.next-nav]
 xref:03-knowledge-base.adoc[Next: Knowledge Base →]

@@ -81,8 +81,7 @@ Defined in `content/antora.yml` under `asciidoc.attributes`. At deploy time the 
 
 ## Image Conventions
 
-- Use `link=self` on images for lightbox popout: `image::screenshot.png[Alt text,link=self]`
-- Do **not** use `window=blank` on images (use `link=self` instead)
+- Use `link=self,window=blank` together on every `image::` macro: `image::screenshot.png[Alt text,link=self,window=blank]`. This UI bundle ships no lightbox JS/CSS, so `link=self` alone just navigates the current frame to the raw image file (looks broken in the split-pane view). `window=blank` opens it in a new tab instead, which is the real "pop out a larger view" behavior and matches convention across other RHPDS showroom repos.
 - No trailing period after credential examples in inline text
 
 ## Key Configuration

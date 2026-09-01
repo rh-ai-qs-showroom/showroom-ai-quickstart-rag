@@ -8,11 +8,11 @@ Agent mode enables multi-step, agentic interaction with the LLM. The model can p
 
 . In the sidebar, set *Mode* to *Agent*.
 
-image::agent-mode.png[Agent Mode,link=self]
+image::agent-mode.png[Agent Mode,link=self,window=blank]
 
 . Optionally select a knowledge base to make available to the agent as a retrieval tool. Leave it unset to let the agent work without document retrieval.
 
-image::select-knowledge.png[Select Knowledge Base,link=self]
+image::select-knowledge.png[Select Knowledge Base,link=self,window=blank]
 
 . Submit your query as you would in chat mode.
 
@@ -48,7 +48,7 @@ When a knowledge base is selected the agent gains access to a retrieval tool bac
 ----
 "Compare our vacation policy with our sick leave policy and summarize the key differences."
 "Walk me through the full procurement approval process from request to payment."
-"What onboarding steps are specific to the IT department versus HR?"
+"What onboarding steps are specific to the TechSupport department versus HR?"
 ----
 
 == Web search tool: try it out
