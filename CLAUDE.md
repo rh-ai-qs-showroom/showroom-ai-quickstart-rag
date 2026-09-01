@@ -81,7 +81,9 @@ Defined in `content/antora.yml` under `asciidoc.attributes`. At deploy time the 
 
 ## Image Conventions
 
-- Use `link=self,window=blank` together on every `image::` macro: `image::screenshot.png[Alt text,link=self,window=blank]`. This UI bundle ships no lightbox JS/CSS, so `link=self` alone just navigates the current frame to the raw image file (looks broken in the split-pane view). `window=blank` opens it in a new tab instead, which is the real "pop out a larger view" behavior and matches convention across other RHPDS showroom repos.
+- Use `link=self,window=blank` together on every `image::` macro: `image::screenshot.png[Alt text,link=self,window=blank]`.
+- The actual pop-out lightbox (scaled-up image, dark overlay, click-outside/Escape/× to close) is custom-built in this repo, not provided by the UI bundle: `content/supplemental-ui/js/lightbox.js` intercepts clicks on `.imageblock a.image` and `content/supplemental-ui/css/site-extra.css` styles the overlay. It's wired in via `content/supplemental-ui/partials/header-scripts.hbs`, which overrides the (empty) same-named partial in the fetched UI bundle — that's how any file under `content/supplemental-ui/` reaches the rendered site.
+- `window=blank` on the macro is a no-JS fallback only (opens the raw image in a new tab if the lightbox script fails to load); the lightbox JS's `preventDefault()` takes priority when it loads successfully.
 - No trailing period after credential examples in inline text
 
 ## Key Configuration
