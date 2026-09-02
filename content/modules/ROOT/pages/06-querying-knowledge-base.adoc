@@ -79,6 +79,3 @@ To confirm the knowledge base is returning accurate results:
 |Switch embedding model
 |Select a different embedding model from the sidebar dropdown to see if a different model captures the semantics better.
 |===
-
-[.next-nav]
-xref:07-kubeflow-pipeline.adoc[Next: Kubeflow Pipeline →]

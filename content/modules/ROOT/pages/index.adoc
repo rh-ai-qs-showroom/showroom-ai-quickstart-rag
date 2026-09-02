@@ -118,12 +118,3 @@ For more details see the https://github.com/rh-ai-quickstart/RAG/blob/main/docs/
 |S3 Bucket
 |Document source for enterprise content
 |===
-
-[.next-nav]
-xref:02-accessing-the-cluster.adoc[Next: Accessing the Cluster →]
-
-== Tags
-
-* **Product:** OpenShift AI
-* **Use case:** RAG
-* **Business challenge:** Adopt and scale AI

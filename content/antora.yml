@@ -5,6 +5,9 @@ nav:
   - modules/ROOT/nav.adoc
 asciidoc:
   attributes:
+    # Enables the UI bundle's native Prev/Next pager at the foot of every
+    # page (rendered from nav.adoc order). Empty value = "set".
+    page-pagination: ''
     user: user1
     password: openshift
 

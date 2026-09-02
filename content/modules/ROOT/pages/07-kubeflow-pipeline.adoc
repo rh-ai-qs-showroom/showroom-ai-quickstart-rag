@@ -41,7 +41,7 @@ At deploy time, one Kubernetes Job per category POSTs a pipeline definition to t
 |`techsupport-vector-db-v1-0`
 |===
 
-Check their status from the Bastion terminal:
+Check their status from the *Terminal* tab:
 
 [source,bash,role="execute",subs=attributes+]
 ----
@@ -57,18 +57,18 @@ oc get pods -l component=data-science-pipelines -n {user}-rag
 
 == Adding your own document set
 
-To ingest a new document set beyond the five pre-loaded categories, call the ingestion-pipeline API's `/add` endpoint directly with a source definition. First, find the service (its name is prefixed with your environment's release name):
+To ingest a new document set beyond the five pre-loaded categories, call the ingestion-pipeline API's `/add` endpoint directly with a source definition. First, confirm the service name (it is simply `ingestion-pipeline`):
 
 [source,bash,role="execute",subs=attributes+]
 ----
 oc get svc -l app.kubernetes.io/name=ingestion-pipeline -n {user}-rag
 ----
 
-Then, from the Bastion terminal, POST a pipeline definition. This example ingests documents from the `llama` bucket in MinIO (the same bucket and credentials the *Upload Documents* UI flow uses), replacing `<ingestion-pipeline-service>` with the name from the previous command:
+Then, from the *Terminal* tab, POST a pipeline definition to the `ingestion-pipeline` service (port 80). This example ingests documents from the `llama` bucket in MinIO, the same bucket and credentials the *Upload Documents* UI flow uses:
 
-[source,bash,subs=attributes+]
+[source,bash,role="execute",subs=attributes+]
 ----
-curl -sX POST http://<ingestion-pipeline-service>/add \
+curl -sX POST http://ingestion-pipeline.{user}-rag.svc.cluster.local/add \
   -H 'Content-Type: application/json' \
   -d '{
     "name": "my-custom-vector-db",
@@ -86,15 +86,10 @@ curl -sX POST http://<ingestion-pipeline-service>/add \
   }'
 ----
 
-[NOTE]
-====
-`<ingestion-pipeline-service>` is a literal placeholder here, replace it with the real service name before running the command; this block intentionally omits the copy-button role for that reason.
-====
-
 == Verifying ingestion
 
 Once a pipeline run completes, confirm that chunks were written to pgvector by querying the knowledge base.
-Switch to the Streamlit UI, select the vector store you ingested into, and ask a question whose answer appears in one of the source documents.
+Switch to the *RAG UI* tab, select the vector store you ingested into, and ask a question whose answer appears in one of the source documents.
 
 For a deeper check of retrieval quality, see xref:06-querying-knowledge-base.adoc[Querying the Knowledge Base].
 
@@ -108,7 +103,7 @@ For a deeper check of retrieval quality, see xref:06-querying-knowledge-base.ado
 |Check the ingestion-pipeline pod is `Running` and its service exists: `oc get pods,svc -l app.kubernetes.io/name=ingestion-pipeline -n {user}-rag`. The Job's `wait-for-pipeline` init container polls that service and cannot proceed without it.
 
 |`ConnectionRefused` calling `/add`
-|Verify the ingestion-pipeline service name and that you're running the `curl` from inside the cluster (the Bastion terminal), not from your local machine.
+|Verify the ingestion-pipeline service name and that you're running the `curl` from inside the cluster (the *Terminal* tab), not from your local machine.
 
 |Run completes but no results appear in chat
 |Confirm the `vector_store_name` you ingested into matches exactly what is selected in the UI Knowledge Base dropdown.
@@ -119,6 +114,3 @@ For a deeper check of retrieval quality, see xref:06-querying-knowledge-base.ado
 |PDF pages appear garbled or empty
 |Scanned PDFs require OCR pre-processing before ingestion. Convert them to text-layer PDFs first.
 |===
-
-[.next-nav]
-xref:index.adoc[Back to Enterprise RAG Chatbot →]

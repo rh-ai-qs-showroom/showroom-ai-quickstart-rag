@@ -17,6 +17,8 @@ Follow these steps to chat directly with the LLM without retrieval:
 "What is retrieval-augmented generation?"
 ----
 . *Expected result*: the model responds using only its built-in training data. The answer will be general-purpose and will not reference any uploaded documents. No source citations appear because there is no retrieval step.
++
+image::chat-direct-result.png[Direct chat answer with no knowledge base and no source citations,role=expand]
 
 == Try it: chat with a knowledge base (RAG)
 
@@ -32,13 +34,16 @@ image::click-knowledge-base-drop-down.png[Select knowledge base,role=expand]
 ----
 "What is the vacation policy for full-time employees?"
 ----
-. *Expected result*: the model returns an answer grounded in the retrieved document chunks. Source citations appear alongside the response so you can trace the answer back to the originating document. The response should closely mirror the language in the source documents.
+. *Expected result*: the model returns an answer grounded in the retrieved document chunks. A *Searched vector stores* indicator and an expandable *File Search Results* panel appear above the response so you can trace the answer back to the originating document. The response should closely mirror the language in the source documents.
++
+image::chat-rag-result.png[RAG answer grounded in the knowledge base showing the searched vector store and file search results,role=expand]
 
 [NOTE]
 ====
 Since the knowledge base is retrieved, you may need to increase *Max Tokens* in the sidebar. Retrieved chunks consume a significant portion of the token budget, and a low cap can cause the response to be cut short.
-====
+
 image::max-token-settings.png[Adjust max tokens,role=expand]
+====
 
 == How RAG retrieval works
 
@@ -86,6 +91,3 @@ Use the sidebar sampling controls to influence output:
 |System Prompt
 |Override the assistant's persona or add extra constraints (e.g., "Answer only in bullet points.").
 |===
-
-[.next-nav]
-xref:05-agent-mode.adoc[Next: Agent Mode →]

@@ -2,13 +2,13 @@
 :navtitle: Accessing the Cluster
 :imagesdir: ../images
 
-All RAG components run inside *your* OpenShift *project* (Kubernetes namespace) for this lab.
+All RAG components run inside your OpenShift project (Kubernetes namespace) for this lab.
 Your namespace is `{user}-rag`.
 This page walks through what you should see for pods, services, and routes, and how to reach the chatbot user interface (UI).
 
 == Accessing the cluster
 
-. Click the *OpenShift* button in the top right of the demo platform to open the OpenShift web console.
+. Click the *OpenShift Console* button in the top right of the demo platform to open the OpenShift web console.
 +
 image::openshift-click.png[OpenShift UI,role=expand]
 
@@ -33,6 +33,15 @@ Password::
 . You will see a single project in the OpenShift UI. In the top left hand corner click on the hamburger menu and select *Workloads → Pods*.
 +
 image::pods.png[Pods,role=expand]
++
+[IMPORTANT]
+====
+If the Pods page shows *Restricted access — You don't have access to this section due to cluster policy* with an error like `pods is forbidden: User "{user}" cannot list resource "pods" in API group "" at the cluster scope`, the console is trying to list pods across *all* projects, which your lab user is not allowed to do.
+
+Click the *Project: All Projects* dropdown at the top of the page and select your project, *{user}-rag*. The pod list appears once a single project is selected.
+
+image::restricted-access-select-project.png[Selecting your project from the Project dropdown to resolve the Restricted access error,role=expand]
+====
 
 . Confirm the pods below are `Running` or `Completed`.
 
@@ -42,7 +51,7 @@ image::pods.png[Pods,role=expand]
 |Pod label (`app.kubernetes.io/name=`) |Purpose
 
 |`rag`
-|Streamlit chat interface served to the user
+|The RAG UI (chatbot web interface) served to the user
 
 |`llamastack`
 |LlamaStack server: orchestrates the LLM, embeddings, and tools
@@ -66,7 +75,7 @@ You will also see several `Running` pods labeled `component=data-science-pipelin
 
 === Using the CLI to check pods
 
-. Click the *Bastion* tab in the right pane to open a terminal, then log in to the cluster:
+. Click the *Terminal* tab in the right pane to open a terminal, then log in to the cluster:
 +
 [source,bash,role="execute",subs=attributes+]
 ----
@@ -97,17 +106,17 @@ _Expected output (trimmed):_
 +
 ----
 NAME                                  READY   STATUS      RESTARTS   AGE
-<release>-rag-78df46bbd5-l7grq        1/1     Running     0          5m
-<release>-ingestion-pipeline-6b6xx    1/1     Running     0          5m
-llamastack-858c497c-rft57             1/1     Running     0          5m
+rag-75b5546598-d7pw9                  1/1     Running     0          5m
+ingestion-pipeline-66f4784b87-fzwlx   1/1     Running     0          5m
+llamastack-57c6dcf4df-zx2gp           1/1     Running     0          5m
 pgvector-0                            1/1     Running     0          5m
 minio-0                               1/1     Running     0          5m
-ds-pipeline-dspa-5fc946b5b9-lpptk     2/2     Running     0          4m
-mariadb-dspa-8d6d7c54c-q67vn          1/1     Running     0          5m
-add-hr-pipeline-pipeline-s5tv6        0/1     Completed   0          5m
+ds-pipeline-dspa-84d5db7c64-cndg8     2/2     Running     0          4m
+mariadb-dspa-8d6d7c54c-cgnrs          1/1     Running     0          5m
+add-hr-pipeline-pipeline-69lzw        0/1     Completed   0          5m
 ----
 
-. Check any of the key pods by their label instead of guessing at a name (labels are stable even when the underlying deployment name changes):
+. Check any of the key pods by their label instead of guessing at a name (each pod name ends in a random suffix, but the labels are stable):
 +
 [source,bash,role="execute",subs=attributes+]
 ----
@@ -117,8 +126,8 @@ oc get pods -l app.kubernetes.io/name=llamastack -n {user}-rag
 _Expected output:_
 +
 ----
-NAME                         READY   STATUS    RESTARTS   AGE
-llamastack-858c497c-rft57    1/1     Running   0          5m
+NAME                          READY   STATUS    RESTARTS   AGE
+llamastack-57c6dcf4df-zx2gp   1/1     Running   0          5m
 ----
 
 == Checking services
@@ -140,10 +149,11 @@ _Expected output (trimmed):_
 +
 ----
 NAME                     TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)                      AGE
+rag                      ClusterIP   172.30.45.12     <none>        8501/TCP                     5m
+ingestion-pipeline       ClusterIP   172.30.73.195    <none>        80/TCP                       5m
 llamastack               ClusterIP   172.30.61.254    <none>        8321/TCP                     5m
 pgvector                 ClusterIP   172.30.217.148   <none>        5432/TCP                     5m
 minio                    ClusterIP   172.30.124.230   <none>        9090/TCP,9000/TCP            5m
-<release>-rag            ClusterIP   172.30.45.12     <none>        8501/TCP                     5m
 ds-pipeline-dspa         ClusterIP   172.30.134.66    <none>        8443/TCP,8888/TCP,8887/TCP   4m
 ----
 
@@ -151,6 +161,12 @@ ds-pipeline-dspa         ClusterIP   172.30.134.66    <none>        8443/TCP,888
 [cols="2,3",options="header"]
 |===
 |Service |Purpose
+
+|`rag`
+|Internal endpoint for the RAG UI (the chatbot web interface, port 8501); exposed to your browser through the `rag` route
+
+|`ingestion-pipeline`
+|Internal REST API that receives document-ingestion requests (port 80)
 
 |`llamastack`
 |Internal REST API for the LlamaStack server (port 8321)
@@ -164,11 +180,6 @@ ds-pipeline-dspa         ClusterIP   172.30.134.66    <none>        8443/TCP,888
 |`ds-pipeline-dspa` and related `ds-pipeline-*`/`mariadb-dspa` services
 |Kubeflow Data Science Pipelines Application control plane that executes ingestion pipeline runs
 |===
-
-[NOTE]
-====
-The Streamlit chat UI and the ingestion pipeline's REST API are also backed by services in this namespace, but their names are prefixed with your environment's release name rather than a fixed string. Find them with `oc get svc -l app.kubernetes.io/name=rag` and `oc get svc -l app.kubernetes.io/name=ingestion-pipeline`.
-====
 
 == Checking routes
 
@@ -184,8 +195,19 @@ image::routes.png[Routes,role=expand]
 ----
 oc get routes -n {user}-rag
 ----
++
+_Expected output (trimmed):_
++
+----
+NAME                  HOST/PORT                                                           PATH   SERVICES                          PORT    TERMINATION          WILDCARD
+rag                   rag-{user}-rag.{openshift_cluster_ingress_domain}                          rag                               8501    edge/Redirect        None
+ds-pipeline-dspa      ds-pipeline-dspa-{user}-rag.{openshift_cluster_ingress_domain}             ds-pipeline-dspa                  proxy   reencrypt/Redirect   None
+ds-pipeline-md-dspa   ds-pipeline-md-dspa-{user}-rag.{openshift_cluster_ingress_domain}          ds-pipeline-metadata-envoy-dspa   proxy   reencrypt/Redirect   None
+minio-api             minio-api-{user}-rag.{openshift_cluster_ingress_domain}                    minio                             api     edge/Redirect        None
+minio-webui           minio-webui-{user}-rag.{openshift_cluster_ingress_domain}                  minio                             webui   edge/Redirect        None
+----
 
-. The chat UI's route name is prefixed with your environment's release name, so filter by label to find it reliably instead of guessing the name:
+. The `rag` route is the one that serves the chatbot. To filter directly to it by label:
 +
 [source,bash,role="execute",subs=attributes+]
 ----
@@ -195,8 +217,8 @@ oc get routes -l app.kubernetes.io/name=rag -n {user}-rag
 _Expected output:_
 +
 ----
-NAME            HOST/PORT                                                        PATH   SERVICES        PORT   TERMINATION     WILDCARD
-<release>-rag   <release>-rag-{user}-rag.{openshift_cluster_ingress_domain}             <release>-rag   8501   edge/Redirect   None
+NAME   HOST/PORT                                            PATH   SERVICES   PORT   TERMINATION     WILDCARD
+rag    rag-{user}-rag.{openshift_cluster_ingress_domain}           rag        8501   edge/Redirect   None
 ----
 
 The `HOST/PORT` value is assigned by your cluster. Copy the exact URL from your own `oc get routes` output.
@@ -206,8 +228,8 @@ The `HOST/PORT` value is assigned by your cluster. Copy the exact URL from your 
 |===
 |Route |Purpose
 
-|`<release>-rag`
-|*This is the URL you open in your browser.* It serves the Streamlit chat interface over HTTPS.
+|`rag`
+|*This is the URL that serves the chatbot (the RAG UI).* The *RAG UI* tab in the right pane opens this same route, so you normally don't need to copy the URL by hand.
 
 |`ds-pipeline-dspa` / `ds-pipeline-md-dspa`
 |Internal API access to the Kubeflow Data Science Pipelines Application; not needed for the chat workflow.
@@ -216,11 +238,13 @@ The `HOST/PORT` value is assigned by your cluster. Copy the exact URL from your 
 |Console and API access to the object storage backing the ingestion pipeline; useful for inspecting uploaded documents.
 |===
 
-Open the `HOST/PORT` value for the `<release>-rag` route in your browser to launch the chat interface. The LlamaStack API itself has no route: it is only reachable from inside the cluster.
+The LlamaStack API itself has no route: it is only reachable from inside the cluster.
 
 == What to expect in the UI
 
-When the Streamlit UI loads you will see:
+Click the *RAG UI* tab in the right pane to open the chatbot. It is served by the `rag` route you just found, so you don't need to copy the URL by hand — but you can also open that route's `HOST/PORT` value in a browser tab directly.
+
+When the RAG UI loads you will see:
 
 * A chat input box at the bottom of the screen for submitting questions
 * A left sidebar with configuration options:
@@ -231,6 +255,3 @@ When the Streamlit UI loads you will see:
 ** *System prompt*: override the default system prompt
 
 The application comes pre-loaded with FantaCo's internal HR, Legal, Procurement, Sales, and TechSupport documents so you can begin asking questions immediately.
-
-[.next-nav]
-xref:03-knowledge-base.adoc[Next: Knowledge Base →]
