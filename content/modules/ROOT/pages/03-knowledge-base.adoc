@@ -6,27 +6,24 @@ The RAG pipeline uses PostgreSQL with the PGVector extension as its vector store
 
 == Creating a new knowledge base via the UI
 
-. Open the RAG UI from the top right corner link and click the *Upload Documents* link in the left sidebar.
-. Click *Create New* and enter a unique name for your knowledge base (e.g., `my-kb`).
-+ 
-image::create-new-dropdown.png[Create New dropdown,link=self]
-. Confirm creation. The new collection is registered in PGVector and is immediately available for selection.
+. Open the RAG UI from the top right corner link and click *Upload Documents* in the left sidebar.
+. From the *Select a vector database* dropdown, choose *➕ Create New* (already selected by default if you have no knowledge bases yet).
 +
-image::success-message.png[Create New Knowledge Base,link=self]
+image::create-new-dropdown.png[Create New dropdown,role=expand]
+. Enter a unique name in the *Add New Vector Database* field (e.g., `my-kb`) and click *Add*.
+. Confirm creation. A success message appears, the new collection is registered in PGVector, and the *Select a vector database* dropdown switches to it automatically.
++
+image::success-message.png[Create New Knowledge Base,role=expand]
 
 == Adding documents via the UI
 
-. With your collection selected, click *Upload Documents*.
-
-. Choose one or more files (PDF, plain text, Markdown) from your local machine.
-+
-[NOTE]
-====
-Support for `.docx` and `.xlsx` file types is being added and will be available in an upcoming release.
-====
+. With your collection selected, choose an *Extraction method*:
+.. *LlamaStack Provider*: for `.txt`, `.pdf`, and `.md` files (200MB per file).
+.. *Docling*: for `.docx` and `.xlsx` files.
+. Click *Upload* and choose one or more files from your local machine. Files upload automatically once selected.
 . The UI passes each file through the ingestion pipeline which:
 .. Cleans and chunks the document text
-.. Generates embeddings using the loaded embedding model (you can select a different embedding model from the dropdown)
+.. Generates embeddings using the configured embedding model
 .. Stores the embedding vectors in PGVector under your chosen collection
 
 == Extraction and chunking mode

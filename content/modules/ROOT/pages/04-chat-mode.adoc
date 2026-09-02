@@ -9,36 +9,36 @@ Chat mode lets you interact with the LLM in a simple, single-turn format. You ca
 Follow these steps to chat directly with the LLM without retrieval:
 
 . In the sidebar, click the *Chat* menu item.
-. Make sure no Document collection is selected — leave the *Select Document Collections for RAG queries* dropdown unset.
+. Make sure no Document collection is selected: leave the *Select Document Collections for RAG queries* dropdown unset.
 . Type a question in the input box and press *Enter*. For example:
 +
 [source,text]
 ----
 "What is retrieval-augmented generation?"
 ----
-. *Expected result* — the model responds using only its built-in training data. The answer will be general-purpose and will not reference any uploaded documents. No source citations appear because there is no retrieval step.
+. *Expected result*: the model responds using only its built-in training data. The answer will be general-purpose and will not reference any uploaded documents. No source citations appear because there is no retrieval step.
 
 == Try it: chat with a knowledge base (RAG)
 
 Follow these steps to chat with RAG retrieval:
 
-. In the sidebar, set *Mode* to *Chat*.
-. Select the *hr-vector-db-v1-0* knowledge base from the *Select Document Collections for RAG queries* dropdown.
+. In the sidebar, ensure *Processing mode* is set to *Direct*.
+. Select the *hr-vector-db-v1-0* knowledge base from the *Select Document Collections for RAG queries* dropdown. This dropdown only appears once at least one knowledge base exists; see xref:03-knowledge-base.adoc[Knowledge Base] if it's not visible yet.
 +
-image::click-knowledge-base-drop-down.png[Select knowledge base,link=self]
+image::click-knowledge-base-drop-down.png[Select knowledge base,role=expand]
 . Type a question that relates to the documents in that collection and press *Enter*. For example:
 +
 [source,text]
 ----
 "What is the vacation policy for full-time employees?"
 ----
-. *Expected result* — the model returns an answer grounded in the retrieved document chunks. Source citations appear alongside the response so you can trace the answer back to the originating document. The response should closely mirror the language in the source documents.
+. *Expected result*: the model returns an answer grounded in the retrieved document chunks. Source citations appear alongside the response so you can trace the answer back to the originating document. The response should closely mirror the language in the source documents.
 
 [NOTE]
 ====
 Since the knowledge base is retrieved, you may need to increase *Max Tokens* in the sidebar. Retrieved chunks consume a significant portion of the token budget, and a low cap can cause the response to be cut short.
 ====
-image::max-token-settings.png[Adjust max tokens,link=self]
+image::max-token-settings.png[Adjust max tokens,role=expand]
 
 == How RAG retrieval works
 
@@ -77,14 +77,11 @@ Use the sidebar sampling controls to influence output:
 |Temperature
 |Higher values (e.g., 0.9) increase creativity; lower values (e.g., 0.1) make responses more deterministic.
 
-|Top-p
-|Controls nucleus sampling — lower values restrict the token pool.
-
-|Top-k
-|Restricts sampling to the _k_ most likely tokens — lower values reduce randomness.
+|Top K
+|Restricts sampling to the _k_ most likely tokens: lower values reduce randomness.
 
 |Max Tokens
-|Caps the length of the generated response. When RAG retrieval is active, set this as high as possible — retrieved chunks consume a significant portion of the available token budget and a low cap can cause the response to be cut short.
+|Caps the length of the generated response. When RAG retrieval is active, set this as high as possible because retrieved chunks consume a significant portion of the available token budget and a low cap can cause the response to be cut short.
 
 |System Prompt
 |Override the assistant's persona or add extra constraints (e.g., "Answer only in bullet points.").

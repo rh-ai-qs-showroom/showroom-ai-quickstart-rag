@@ -7,49 +7,67 @@ Your namespace is `{user}-rag`.
 This page walks through what you should see for pods, services, and routes, and how to reach the chatbot user interface (UI).
 
 == Accessing the cluster
-Next we need to login to the cluster via the OpenShift UI. In the demo platform click the OpenShift UI button at the top right.
 
-image::openshift-click.png[OpenShift UI,link=self]
+. Click the *OpenShift* button in the top right of the demo platform to open the OpenShift web console.
++
+image::openshift-click.png[OpenShift UI,role=expand]
 
-Log in with `{user}` / `{password}`
+. Log in with the credentials below.
++
+Username::
++
+[source,text,subs=attributes+]
+----
+{user}
+----
++
+Password::
++
+[source,text,subs=attributes+]
+----
+{password}
+----
 
 == Checking pods
 
-After logging in to the OpenShift UI, we need to check the pods in the namespace. You will see a single project in the UI. In the top left hand corner click on the hamburger menu and select "Workloads/Pods".
+. You will see a single project in the OpenShift UI. In the top left hand corner click on the hamburger menu and select *Workloads → Pods*.
++
+image::pods.png[Pods,role=expand]
 
-image::pods.png[Pods,link=self]
-
-A healthy cluster will show output similar to the photo above.
+. Confirm the pods below are `Running` or `Completed`.
 
 .Key pods to verify
 [cols="2,3",options="header"]
 |===
-|Pod name contains |Purpose
+|Pod label (`app.kubernetes.io/name=`) |Purpose
 
-|`llamastack-ui`
+|`rag`
 |Streamlit chat interface served to the user
 
 |`llamastack`
 |LlamaStack server: orchestrates the LLM, embeddings, and tools
 
-|`postgresql`
-|PostgreSQL + PGVector: stores document embeddings for the vector store
+|`pgvector`
+|PostgreSQL + pgvector extension: stores document embeddings for the vector store
 
-|`rag-ingest-pipeline`
-|Kubeflow Pipeline job that ingested the initial FantaCo documents. `Completed` is the expected final state
+|`ingestion-pipeline`
+|REST API that receives document-ingestion requests and hands them off to the Data Science Pipelines Application
+
+|`minio`
+|S3-compatible object storage backing the ingestion pipeline
 |===
 
 [NOTE]
 ====
-The predictor pods show `2/2` ready in the default configuration.
-If the system was configured with `RAW_DEPLOYMENT=false`, expect `3/3`.
-The `llamastack` pod will not reach `Running` until all predictor pods are healthy.
+There is no local model-serving pod in this namespace. The LLM runs on an external OpenShift AI Model-as-a-Service (MaaS) endpoint, so the `llamastack` pod only needs to reach `Running` on its own.
+
+You will also see several `Running` pods labeled `component=data-science-pipelines` (the Kubeflow pipeline control plane) and, briefly at first boot, one `add-<department>-pipeline-pipeline` Job per pre-loaded document category. See xref:07-kubeflow-pipeline.adoc[Kubeflow Pipeline] for what these do.
 ====
 
 === Using the CLI to check pods
 
-To run CLI commands against the cluster, click the *Bastion* tab in the right pane to open a terminal. Log in to the cluster:
-
+. Click the *Bastion* tab in the right pane to open a terminal, then log in to the cluster:
++
 [source,bash,role="execute",subs=attributes+]
 ----
 oc login --insecure-skip-tls-verify \
@@ -57,34 +75,76 @@ oc login --insecure-skip-tls-verify \
   -p {password} \
   {openshift_api_url}
 ----
++
+_Expected output:_
++
+----
+Login successful.
 
-Once you've logged in, check the pods:
+You have one project on this server: "{user}-rag"
 
+Using project "{user}-rag".
+----
+
+. Check the pods:
++
 [source,bash,role="execute",subs=attributes+]
 ----
 oc get pods -n {user}-rag
 ----
++
+_Expected output (trimmed):_
++
+----
+NAME                                  READY   STATUS      RESTARTS   AGE
+<release>-rag-78df46bbd5-l7grq        1/1     Running     0          5m
+<release>-ingestion-pipeline-6b6xx    1/1     Running     0          5m
+llamastack-858c497c-rft57             1/1     Running     0          5m
+pgvector-0                            1/1     Running     0          5m
+minio-0                               1/1     Running     0          5m
+ds-pipeline-dspa-5fc946b5b9-lpptk     2/2     Running     0          4m
+mariadb-dspa-8d6d7c54c-q67vn          1/1     Running     0          5m
+add-hr-pipeline-pipeline-s5tv6        0/1     Completed   0          5m
+----
 
-To check the LlamaStack orchestration pod specifically:
-
+. Check any of the key pods by their label instead of guessing at a name (labels are stable even when the underlying deployment name changes):
++
 [source,bash,role="execute",subs=attributes+]
 ----
 oc get pods -l app.kubernetes.io/name=llamastack -n {user}-rag
 ----
++
+_Expected output:_
++
+----
+NAME                         READY   STATUS    RESTARTS   AGE
+llamastack-858c497c-rft57    1/1     Running   0          5m
+----
 
 == Checking services
 
-Services expose each component internally within the cluster:
+Services expose each component internally within the cluster.
 
-In the OpenShift UI, click on the "Networking/Services" menu item in the left hand navigation.
+. In the OpenShift UI, click on the "Networking/Services" menu item in the left hand navigation.
++
+image::services.png[Services,role=expand]
 
-image::services.png[Services,link=self]
-
-Or run the following command from the CLI:
-
+. Or run the following command from the CLI:
++
 [source,bash,role="execute",subs=attributes+]
 ----
 oc get svc -n {user}-rag
+----
++
+_Expected output (trimmed):_
++
+----
+NAME                     TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)                      AGE
+llamastack               ClusterIP   172.30.61.254    <none>        8321/TCP                     5m
+pgvector                 ClusterIP   172.30.217.148   <none>        5432/TCP                     5m
+minio                    ClusterIP   172.30.124.230   <none>        9090/TCP,9000/TCP            5m
+<release>-rag            ClusterIP   172.30.45.12     <none>        8501/TCP                     5m
+ds-pipeline-dspa         ClusterIP   172.30.134.66    <none>        8443/TCP,8888/TCP,8887/TCP   4m
 ----
 
 .What each service does
@@ -93,51 +153,70 @@ oc get svc -n {user}-rag
 |Service |Purpose
 
 |`llamastack`
-|Internal REST API for the LlamaStack server (port 5000)
+|Internal REST API for the LlamaStack server (port 8321)
 
-|`llamastack-ui`
-|Internal HTTP endpoint for the Streamlit UI (port 8501)
+|`pgvector`
+|Internal PostgreSQL + pgvector endpoint (port 5432)
 
-|`postgresql`
-|Internal PostgreSQL + PGVector endpoint (port 5432)
+|`minio`
+|Internal S3-compatible object storage used by the ingestion pipeline
+
+|`ds-pipeline-dspa` and related `ds-pipeline-*`/`mariadb-dspa` services
+|Kubeflow Data Science Pipelines Application control plane that executes ingestion pipeline runs
 |===
+
+[NOTE]
+====
+The Streamlit chat UI and the ingestion pipeline's REST API are also backed by services in this namespace, but their names are prefixed with your environment's release name rather than a fixed string. Find them with `oc get svc -l app.kubernetes.io/name=rag` and `oc get svc -l app.kubernetes.io/name=ingestion-pipeline`.
+====
 
 == Checking routes
 
-Routes expose the UI and API to the outside world. In the OpenShift UI, click on the "Networking/Routes" menu item in the left hand navigation.
+Routes expose the UI and API to the outside world.
 
-image::routes.png[Routes,link=self]
+. In the OpenShift UI, click on the "Networking/Routes" menu item in the left hand navigation.
++
+image::routes.png[Routes,role=expand]
 
-Or run the following command from the CLI:
-
+. Or run the following command from the CLI:
++
 [source,bash,role="execute",subs=attributes+]
 ----
 oc get routes -n {user}-rag
 ----
 
+. The chat UI's route name is prefixed with your environment's release name, so filter by label to find it reliably instead of guessing the name:
++
+[source,bash,role="execute",subs=attributes+]
+----
+oc get routes -l app.kubernetes.io/name=rag -n {user}-rag
+----
++
 _Expected output:_
-
++
 ----
-NAME              HOST/PORT                                                    PATH   SERVICES        PORT    TERMINATION   WILDCARD
-llamastack        llamastack-{user}-rag.{openshift_cluster_ingress_domain}           llamastack      5000    edge          None
-llamastack-ui     llamastack-ui-{user}-rag.{openshift_cluster_ingress_domain}        llamastack-ui   8501    edge          None
+NAME            HOST/PORT                                                        PATH   SERVICES        PORT   TERMINATION     WILDCARD
+<release>-rag   <release>-rag-{user}-rag.{openshift_cluster_ingress_domain}             <release>-rag   8501   edge/Redirect   None
 ----
 
-The `HOST/PORT` values are assigned by your cluster. Copy the exact URLs from your own `oc get routes` output.
+The `HOST/PORT` value is assigned by your cluster. Copy the exact URL from your own `oc get routes` output.
 
 .Route breakdown
 [cols="2,3",options="header"]
 |===
 |Route |Purpose
 
-|`llamastack-ui`
+|`<release>-rag`
 |*This is the URL you open in your browser.* It serves the Streamlit chat interface over HTTPS.
 
-|`llamastack`
-|The LlamaStack REST API: useful for direct API access, scripting, or connecting external clients.
+|`ds-pipeline-dspa` / `ds-pipeline-md-dspa`
+|Internal API access to the Kubeflow Data Science Pipelines Application; not needed for the chat workflow.
+
+|`minio-webui` / `minio-api`
+|Console and API access to the object storage backing the ingestion pipeline; useful for inspecting uploaded documents.
 |===
 
-Open the `HOST/PORT` value for `llamastack-ui` in your browser to launch the chat interface.
+Open the `HOST/PORT` value for the `<release>-rag` route in your browser to launch the chat interface. The LlamaStack API itself has no route: it is only reachable from inside the cluster.
 
 == What to expect in the UI
 
@@ -145,12 +224,13 @@ When the Streamlit UI loads you will see:
 
 * A chat input box at the bottom of the screen for submitting questions
 * A left sidebar with configuration options:
-** *Knowledge Base*: select which vector store collection to query
-** *Mode*: toggle between *Chat* (simple RAG) and *Agent* (agentic RAG)
-** *Sampling parameters*: adjust temperature, top-p, and max tokens
+** *Model*: the LLM currently serving responses
+** *Processing mode*: toggle between *Direct* (simple RAG) and *Agent-based* (agentic RAG with tool calling)
+** *Select Document Collections for RAG queries*: appears once at least one knowledge base exists; choose which vector store collection to query
+** *Sampling parameters*: adjust temperature, top K, max tokens, and (in Agent-based mode) max inference iterations
 ** *System prompt*: override the default system prompt
 
-The application comes pre-loaded with FantaCo's internal HR, procurement, sales, and IT documents so you can begin asking questions immediately.
+The application comes pre-loaded with FantaCo's internal HR, Legal, Procurement, Sales, and TechSupport documents so you can begin asking questions immediately.
 
 [.next-nav]
 xref:03-knowledge-base.adoc[Next: Knowledge Base →]
