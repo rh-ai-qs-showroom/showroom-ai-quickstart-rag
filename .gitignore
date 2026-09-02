@@ -11,6 +11,11 @@ www/
 # Ignore Claude - at least for now
 .claude/
 
+# Ignore agent tooling cruft
+.agents/
+AGENTS.md
+skills-lock.json
+
 # Ignore IDE and editor files
 .vscode/
 .idea/

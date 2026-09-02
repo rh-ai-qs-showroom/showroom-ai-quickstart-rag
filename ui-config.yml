@@ -16,15 +16,15 @@ tabs:
   #   url: 'https://console-openshift-console.${DOMAIN}'
 
 #  Single terminal
-  - name: Bastion
+  - name: Terminal
     path: /wetty
     port: 443
 
   # Vertical split terminals
-  # - name: Bastion
+  # - name: Terminal
   #   path: /wetty
   #   port: 443
-  #   secondary_name: Bastion
+  #   secondary_name: Terminal
   #   secondary_path: /wetty
   #   secondary_port: 443
 

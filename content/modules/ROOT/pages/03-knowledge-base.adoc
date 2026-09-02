@@ -6,7 +6,7 @@ The RAG pipeline uses PostgreSQL with the PGVector extension as its vector store
 
 == Creating a new knowledge base via the UI
 
-. Open the RAG UI from the top right corner link and click *Upload Documents* in the left sidebar.
+. Click the *RAG UI* tab in the right pane to open the chatbot, then click *Upload Documents* in the left sidebar.
 . From the *Select a vector database* dropdown, choose *➕ Create New* (already selected by default if you have no knowledge bases yet).
 +
 image::create-new-dropdown.png[Create New dropdown,role=expand]
@@ -21,10 +21,18 @@ image::success-message.png[Create New Knowledge Base,role=expand]
 .. *LlamaStack Provider*: for `.txt`, `.pdf`, and `.md` files (200MB per file).
 .. *Docling*: for `.docx` and `.xlsx` files.
 . Click *Upload* and choose one or more files from your local machine. Files upload automatically once selected.
++
+[TIP]
+====
+Ingestion runs while you wait: each file is cleaned, chunked, and embedded before the success message appears, so this can take a few moments — larger files take longer. For a quick first run, keep uploads small (around 1 MB or less). A one- or two-page PDF embeds in a few seconds, whereas a large document can take several minutes.
+====
 . The UI passes each file through the ingestion pipeline which:
 .. Cleans and chunks the document text
 .. Generates embeddings using the configured embedding model
 .. Stores the embedding vectors in PGVector under your chosen collection
+. When ingestion finishes, a green *Successfully uploaded* banner confirms the document is in your collection, and the file appears in the *Documents in '<collection>'* list above.
++
+image::upload-success.png[Successful document upload confirmation showing the green success banner,role=expand]
 
 == Extraction and chunking mode
 
@@ -37,6 +45,3 @@ Document extraction and chunking can run in one of two modes:
 ====
 A toggle to switch between local and pipeline-based extraction/chunking is being added and will be available in an upcoming release.
 ====
-
-[.next-nav]
-xref:04-chat-mode.adoc[Next: Chat Mode →]

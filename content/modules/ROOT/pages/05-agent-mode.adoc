@@ -7,13 +7,11 @@ Agent mode enables multi-step, agentic interaction with the LLM. The model can p
 == Starting an agent session
 
 . In the sidebar, set *Processing mode* to *Agent-based*.
-
++
 image::agent-mode.png[Agent Mode,role=expand]
-
 . Optionally select a knowledge base to make available to the agent as a retrieval tool. Leave it unset to let the agent work without document retrieval.
-
++
 image::select-knowledge.png[Select Knowledge Base,role=expand]
-
 . Submit your query as you would in chat mode.
 
 == Agent without a knowledge base
@@ -84,6 +82,8 @@ In the chat window you will see the tool invocation appear as a collapsible step
 ----
 +
 The agent uses the search result to produce the correct, grounded answer: *The Philadelphia Eagles won Super Bowl LIX, defeating the Kansas City Chiefs 40–22.*
++
+image::websearch-result.png[Agent-based mode calling the web search tool to answer a question beyond its training cutoff,role=expand]
 
 This pattern works for any question about recent events, live data, or anything beyond the model's training cutoff.
 
@@ -116,6 +116,3 @@ If the agent is still cutting reasoning short, also check *Max Inference Iterati
 ====
 Agent-based mode is best suited for multi-part questions that require synthesizing information from several documents or knowledge base sections. If your question is straightforward and single-turn, Direct mode will be faster and simpler.
 ====
-
-[.next-nav]
-xref:06-querying-knowledge-base.adoc[Next: Querying the Knowledge Base →]
