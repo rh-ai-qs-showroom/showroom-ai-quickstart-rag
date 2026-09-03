@@ -7,13 +7,15 @@ The RAG pipeline uses PostgreSQL with the PGVector extension as its vector store
 == Creating a new knowledge base via the UI
 
 . Click the *RAG UI* tab in the right pane to open the chatbot, then click *Upload Documents* in the left sidebar.
++
+image::rag-ui-chat.png[The RAG UI Chat playground,role=expand]
 . From the *Select a vector database* dropdown, choose *➕ Create New* (already selected by default if you have no knowledge bases yet).
 +
-image::create-new-dropdown.png[Create New dropdown,role=expand]
+image::create-new-dropdown.png[Create New Vector Database form,role=expand]
 . Enter a unique name in the *Add New Vector Database* field (e.g., `my-kb`) and click *Add*.
-. Confirm creation. A success message appears, the new collection is registered in PGVector, and the *Select a vector database* dropdown switches to it automatically.
 +
-image::success-message.png[Create New Knowledge Base,role=expand]
+image::create-vector-db.png[Naming the new vector database,role=expand]
+. Confirm creation. A success message appears, the new collection is registered in PGVector, and the *Select a vector database* dropdown switches to it automatically.
 
 == Adding documents via the UI
 
