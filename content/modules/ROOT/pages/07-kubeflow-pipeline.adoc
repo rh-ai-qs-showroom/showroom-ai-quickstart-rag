@@ -72,18 +72,25 @@ curl -sX POST http://ingestion-pipeline.{user}-rag.svc.cluster.local/add \
   -H 'Content-Type: application/json' \
   -d '{
     "name": "my-custom-vector-db",
-    "vector_store_name": "my-custom-vector-db-v1-0",
     "version": "1.0",
-    "embedding_model": "all-MiniLM-L6-v2",
     "source": "S3",
-    "S3": {
-      "access_key_id": "minio_rag_user",
-      "secret_access_key": "minio_rag_password",
-      "bucket_name": "llama",
-      "endpoint_url": "http://minio.{user}-rag.svc.cluster.local:9000",
-      "region": "us-east-1"
-    }
+    "embedding_model": "all-MiniLM-L6-v2",
+    "vector_store_name": "my-custom-vector-db-v1-0",
+    "access_key_id": "minio_rag_user",
+    "secret_access_key": "minio_rag_password",
+    "endpoint_url": "http://minio.{user}-rag.svc.cluster.local:9000",
+    "bucket_name": "llama",
+    "region": "us-east-1"
   }'
+----
+
+The S3 credentials and bucket details are top-level fields, not nested under an `S3` object.
+
+A successful call returns the pipeline name and run ID:
+
+[source,json]
+----
+{"status":"ok","pipeline_name":"my-custom-vector-db-v1-0","pipeline_id":"..."}
 ----
 
 == Verifying ingestion
