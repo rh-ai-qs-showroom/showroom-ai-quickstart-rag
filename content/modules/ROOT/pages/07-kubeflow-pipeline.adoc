@@ -3,7 +3,6 @@
 
 The RAG quickstart ingests documents through an `ingestion-pipeline` REST API service, backed by a Kubeflow Data Science Pipelines Application (DSPA) that does the actual fetch/chunk/embed/store work.
 Every one of FantaCo's five pre-loaded document categories, HR, Legal, Procurement, Sales, and TechSupport, was ingested this way automatically when your environment was provisioned.
-The same API is what the *Upload Documents* button in the chat UI calls behind the scenes; see xref:03-knowledge-base.adoc[Knowledge Base] for that flow.
 
 == What the pipeline does
 
@@ -64,7 +63,7 @@ To ingest a new document set beyond the five pre-loaded categories, call the ing
 oc get svc -l app.kubernetes.io/name=ingestion-pipeline -n {user}-rag
 ----
 
-Then, from the *Terminal* tab, POST a pipeline definition to the `ingestion-pipeline` service (port 80). This example ingests documents from the `llama` bucket in MinIO, the same bucket and credentials the *Upload Documents* UI flow uses:
+Then, from the *Terminal* tab, POST a pipeline definition to the `ingestion-pipeline` service (port 80). This example ingests documents from a GitHub repository (the same source type used for the five built-in categories):
 
 [source,bash,role="execute",subs=attributes+]
 ----
@@ -72,18 +71,33 @@ curl -sX POST http://ingestion-pipeline.{user}-rag.svc.cluster.local/add \
   -H 'Content-Type: application/json' \
   -d '{
     "name": "my-custom-vector-db",
-    "vector_store_name": "my-custom-vector-db-v1-0",
     "version": "1.0",
+    "source": "GITHUB",
     "embedding_model": "all-MiniLM-L6-v2",
-    "source": "S3",
-    "S3": {
-      "access_key_id": "minio_rag_user",
-      "secret_access_key": "minio_rag_password",
-      "bucket_name": "llama",
-      "endpoint_url": "http://minio.{user}-rag.svc.cluster.local:9000",
-      "region": "us-east-1"
-    }
+    "vector_store_name": "my-custom-vector-db-v1-0",
+    "url": "https://github.com/rh-ai-quickstart/RAG.git",
+    "path": "notebooks/hr",
+    "branch": "main"
   }'
+----
+
+_Expected output:_
+
+----
+{"status":"ok","pipeline_name":"my-custom-vector-db-v1-0","pipeline_id":"..."}
+----
+
+Check the pipeline status:
+
+[source,bash,role="execute",subs=attributes+]
+----
+curl -s "http://ingestion-pipeline.{user}-rag.svc.cluster.local/status?pipeline_name=my-custom-vector-db-v1-0"
+----
+
+_Expected output when complete:_
+
+----
+{"state":"succeeded"}
 ----
 
 == Verifying ingestion
